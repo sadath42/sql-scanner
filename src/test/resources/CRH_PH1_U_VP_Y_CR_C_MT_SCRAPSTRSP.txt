@@ -1,0 +1,288 @@
+/* ----------------- CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP ----------------- */ 
+
+insert_job: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP   job_type: BOX 
+owner: pcrhman
+permission: gx,ge
+date_conditions: 1
+run_calendar: CRH_DAY_26
+start_times: "01:00"
+description: "Box Job to Process 4S return file"
+alarm_if_fail: 0
+timezone: US/Eastern
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_FWJ_NDM_VAPSCDSFLWH ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_FWJ_NDM_VAPSCDSFLWH   job_type: FW 
+ box_name: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ description: "File Watcher Job for 4S response file"
+ term_run_time: 600
+ max_run_alarm: 120
+ alarm_if_fail: 1
+ timezone: US/Eastern
+ watch_file: "${TRIGDIR}/SB_DOJ_SCRA_DMDC_ORDERS_1.trg" sample.ksh sample1.ksh sample2.ksh
+ watch_interval: 60 
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_KSH_FRWRKRUNID ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_KSH_FRWRKRUNID   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP
+ command: FWLite_get_runid_busdt.ksh -l CRH -b CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_FWJ_NDM_VAPSCDSFLWH)
+ description: "Get Runid"
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_RESPFLMRGE ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_RESPFLMRGE   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP
+ command: FWLite_script_runner_wrapper.ksh -b CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP -l CRH -j CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_RESPFLMRGE -f C -h N -t T -- LD_SCRA_MO_MAIL4S_FLCNTMT_NOTIFY.ksh
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_NDM_KSH_XXNDMTODR1) AND success(CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_NDM_KSH_XXNDMTODR2)
+ description: "Job to Merge the response files from 4S"
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_FLC_KSH_GENCTLFILE ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_FLC_KSH_GENCTLFILE   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP
+ command: FWLite_script_runner_wrapper.ksh -b CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP -l CRH -j CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_FLC_KSH_GENCTLFILE -f C -h N -t T -- generate_ctl_trg_file.ksh SB_DOJ_SCRA_DMDC_ORDERS.dat SB_DOJ_SCRA_DMDC_ORDERS.cfg
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_NDM_KSH_XXXNDMTODR)
+ description: "generate ctl"
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_SCRARESPS2R ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_SCRARESPS2R   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP
+ command: FWLite_script_runner_wrapper.ksh -b CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP -l CRH -j CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_SCRARESPS2R -f C -h Y -t SB_DOJ_SCRA_DMDC_ORDERS_1.trg -- crh_wrapper_load_f2v.ksh SB_DOJ_SCRA_DMDC_ORDERS.dat SB_DOJ_SCRA_DMDC_ORDERS.cfg
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_FLC_KSH_GENCTLFILE)
+ description: "Job to Load response file"
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_CSTMLTYR2SU ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_CSTMLTYR2SU   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP
+ command: FWLite_script_runner_wrapper.ksh -b CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP -l CRH -j CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_CSTMLTYR2SU -f C -h N -t T -- LD_SCRA_MO_SBA_CUSTDTLS_4SRESP_RAW2SUP.ksh
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_SCRARESPS2R)
+ description: "Job to Load response file data from Raw to Prestg"
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_ACCTMLTSU2D ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_ACCTMLTSU2D   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP
+ command: FWLite_script_runner_wrapper.ksh -b CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP -l CRH -j CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_ACCTMLTSU2D -f C -h N -t T -- LD_SCRA_MO_SBA_ACCT_MLTY_DTLS_SUP2DST.ksh
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_CSTMLTYR2SU)
+ description: "Job to create Regular file to SBA at Account Level"
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_EXCPMLTSU2D ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_EXCPMLTSU2D   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP
+ command: FWLite_script_runner_wrapper.ksh -b CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP -l CRH -j CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_EXCPMLTSU2D -f C -h N -t T -- LD_SCRA_MO_SBA_ACCT_NOMLTY_DTLS_SUP2DST.ksh
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_ACCTMLTSU2D)
+ description: "Job to create xception file to SBA at Account Level"
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_KSH_SBAFINALNDM ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_KSH_SBAFINALNDM   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP
+ command: FWLite_script_runner_wrapper.ksh -b CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP -l CRH -j CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_KSH_SBAFINALNDM -f U -h N -- ksh TRN_CRH2DWNSTRM.ksh -r SCRA_MLTCD_SBA_NDM_3S.param -t M
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_ACCTMLTSU2D)
+ description: "NDM the SCRA output file to SBA Downstream"
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${ERROR}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_SCRAENDMAIL ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_SCRAENDMAIL   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP
+ command: FWLite_script_runner_wrapper.ksh -b CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP -l CRH -j CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_SCRAENDMAIL -f C -h N -t T -- LD_SCRA_MO_MAIL_END_NOTIFY.ksh
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_EXCPMLTSU2D) AND success(CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_KSH_SBAFINALNDM)
+ description: "Job to send End Mail Notification"
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_KSH_FRMWRKSTAT ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_KSH_FRMWRKSTAT   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP
+ command: FWLite_fwstat_wrapper.ksh -b CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP -l CRH
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_SCRAENDMAIL)
+ description: "FWStat for SCRA Process"
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_NDM_KSH_XXXNDMTODR ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_NDM_KSH_XXXNDMTODR   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP
+ command: ksh TRN_MULTIFILES2DR.ksh SB_DOJ_SCRA_DMDC_ORDERS_*.txt
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_RESPFLMRGE)
+ description: "NDM Daily file to DR Server"
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${ERROR}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+ timezone: US/Eastern
+ s=k.ksh sd sf
+
+
+/* ----------------- CRH_PCS_U_VP_Y_CR_C_MT_SCRAPSTRSP_FLC_KSH_CSDPTRGPRODA ----------------- */ 
+
+ insert_job: CRH_PCS_U_VP_Y_CR_C_MT_SCRAPSTRSP_FLC_KSH_CSDPTRGPRODA   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP
+ command: touch /iis_prodva_data3/crh/inbox/CRH_M_SD1P_NDM_CDM_MILITARY_FILE.trg
+ machine: lrcha76856.bankofamerica.com
+ owner: chldpd
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_ACCTMLTSU2D)
+ std_out_file: "/iis_prodva_data3/crh/common/log/${AUTO_JOB_NAME}.$$.log"
+ std_err_file: "/iis_prodva_data3/crh/common/error/${AUTO_JOB_NAME}.$$.err"
+ alarm_if_fail: 1
+ timezone: US/Eastern
+
+
+
+/* ----------------- CRH_PCS_U_VP_Y_CR_C_MT_SCRAPSTRSP_FLC_KSH_CSDPTRGPRODB ----------------- */ 
+
+ insert_job: CRH_PCS_U_VP_Y_CR_C_MT_SCRAPSTRSP_FLC_KSH_CSDPTRGPRODB   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP
+ command: touch /iis_prodtx_data3/crh/inbox/CRH_M_SD1P_NDM_CDM_MILITARY_FILE.trg
+ machine: lrdna76884.bankofamerica.com
+ owner: chldpd
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_VRT_ACCTMLTSU2D)
+ std_out_file: "/iis_prodtx_data3/crh/common/log/${AUTO_JOB_NAME}.$$.log"
+ std_err_file: "/iis_prodtx_data3/crh/common/error/${AUTO_JOB_NAME}.$$.err"
+ alarm_if_fail: 1
+ timezone: US/Eastern
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_NDM_KSH_XXNDMTODR1 ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_NDM_KSH_XXNDMTODR1   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP
+ command: ksh TRN_CRH2DWNSTRM.ksh -r SB_DOJ_SCRA_DMDC_ORDERS_1_DR.param -t U
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_KSH_FRWRKRUNID)
+ description: "NDM Daily file to DR Server"
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${ERROR}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+ timezone: US/Eastern
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_NDM_KSH_XXNDMTODR2 ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_NDM_KSH_XXNDMTODR2   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP
+ command: ksh TRN_CRH2DWNSTRM.ksh -r SB_DOJ_SCRA_DMDC_ORDERS_2_DR.param -t U
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_C_MT_SCRAPSTRSP_ETL_KSH_FRWRKRUNID)
+ description: "NDM Daily file to DR Server"
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${ERROR}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+ timezone: US/Eastern
+
