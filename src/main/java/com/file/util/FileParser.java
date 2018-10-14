@@ -15,6 +15,7 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import com.file.util.vo.Box;
 import com.file.util.vo.BoxChild;
+import com.file.util.vo.KshChild;
 
 /**
  * @author
@@ -58,37 +59,55 @@ public class FileParser {
 			for (String txtFileTobeProcessed : entry.getValue()) {
 				Box box = new Box();
 				box.setName(txtFileTobeProcessed);
-				Map<String, BoxChild> scriptAndSqlList = new LinkedHashMap<>();
-				scanFile(txtFileTobeProcessed, scriptAndSqlList);
-				box.setScriptAndSqlList(scriptAndSqlList);
+				Map<String,  List<BoxChild>> scriptAndSqlList = new LinkedHashMap<>();
+				//scanFile(txtFileTobeProcessed, scriptAndSqlList);
+				List<BoxChild> boxChilds = getBoxChilds(txtFileTobeProcessed);
+				
+				box.setBoxChilds(boxChilds);
 				boxs.add(box);
 			}
 		}
 		return resultVapAndBoxList;
 	}
+	
+	
+	private static List<BoxChild> getBoxChilds(String txtFileTobeProcessed){
+		List<BoxChild> jobs = JobExtractor.getJobs(txtFileTobeProcessed);
+		for (BoxChild boxChild : jobs) {
+			List<String> files = boxChild.getFilesTobeScanned();
+			List<KshChild> childs = new ArrayList<>();
+			for (String fileTobeProcessed : files) {
+				scanFile(fileTobeProcessed, childs);
+			}
+			boxChild.setKshChilds(childs);
+			
+		}
+		return jobs;
+	}
 
 	/**
 	 * @param fileTobeProcessed
-	 * @param scriptAndSqlList
+	 * @param childs
 	 */
-	private static void scanFile(String fileTobeProcessed, Map<String, BoxChild> scriptAndSqlList) {
+	private static void scanFile(String fileTobeProcessed, List<KshChild> childs) {
 
 		List<String> childScripts = GetScriptsInTheFile.getScripts(fileTobeProcessed);
 		if (!childScripts.isEmpty()) {
 			for (String filename : childScripts) {
-				scanFile(filename, scriptAndSqlList);
+				scanFile(filename, childs);  
 			}
 		}
-
-		BoxChild exctractSqlCommands = SqlExtractor.exctractSqlCommands(fileTobeProcessed);
-		boolean sqlChilds = !CollectionUtils.isEmpty(exctractSqlCommands.getSqlComands());
-		if (sqlChilds || !CollectionUtils.isEmpty(exctractSqlCommands.getParams())) {
+ 
+		KshChild boxChild = SqlExtractor.exctractSqlCommands(fileTobeProcessed);
+		childs.add(boxChild);
+		/*boolean sqlChilds = !CollectionUtils.isEmpty(boxChild.getSqlComands());
+		if (sqlChilds || !CollectionUtils.isEmpty(boxChild.getParams())) {
 			if (!sqlChilds) {
-				scriptAndSqlList.put(fileTobeProcessed + ".txt", exctractSqlCommands);
+				childs.put(fileTobeProcessed + ".txt", boxChild);
 			} else {
-				scriptAndSqlList.put(fileTobeProcessed, exctractSqlCommands);
+				childs.put(fileTobeProcessed, boxChild);
 			}
-		}
+		} */
 
 	}
 

@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.file.util.vo.BoxChild;
+import com.file.util.vo.KshChild;
 import com.file.util.vo.SqlComand;
 
 public class SqlExtractor {
@@ -23,8 +24,7 @@ public class SqlExtractor {
 
 	private static final Pattern PATTERN;
 	private static final Pattern CMDPATTERN;
-	private static Logger LOGGER = 
-			  LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getSimpleName());
+	private static Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getSimpleName());
 	static {
 		PATTERN = Pattern.compile(SQL_PATTERN, Pattern.MULTILINE);
 		CMDPATTERN = Pattern.compile(SQL_COMMAND_PATTERN, Pattern.MULTILINE);
@@ -37,8 +37,8 @@ public class SqlExtractor {
 	 * @param fileTobeProcessed
 	 * @param node
 	 */
-	public static BoxChild exctractSqlCommands(String fileTobeProcessed) {
-		BoxChild boxChild = new BoxChild();
+	public static KshChild exctractSqlCommands(String fileTobeProcessed) {
+		KshChild boxChild = new KshChild(fileTobeProcessed);
 		List<SqlComand> comands = new ArrayList<>();
 		try {
 
@@ -66,7 +66,7 @@ public class SqlExtractor {
 			}
 
 		} catch (IOException e) {
-			LOGGER.error("Error while parsinfg scripts {}",e);
+			LOGGER.error("Error while parsinfg scripts {}", e);
 		}
 		return boxChild;
 

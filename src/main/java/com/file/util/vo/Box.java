@@ -7,7 +7,17 @@ public class Box {
 
 	private String name;
 
-	private Map<String, BoxChild> scriptAndSqlList;
+	//private Map<String, List<BoxChild>> scriptAndSqlList;
+
+	private List<BoxChild> boxChilds;
+
+	public List<BoxChild> getBoxChilds() {
+		return boxChilds;
+	}
+
+	public void setBoxChilds(List<BoxChild> boxChilds) {
+		this.boxChilds = boxChilds;
+	}
 
 	public String getName() {
 		return name;
@@ -17,14 +27,12 @@ public class Box {
 		this.name = name;
 	}
 
-	public Map<String, BoxChild> getScriptAndSqlList() {
+/*	public Map<String, List<BoxChild>> getScriptAndSqlList() {
 		return scriptAndSqlList;
 	}
 
-	public void setScriptAndSqlList(Map<String, BoxChild> scriptAndSqlList) {
+	public void setScriptAndSqlList(Map<String, List<BoxChild>> scriptAndSqlList) {
 		this.scriptAndSqlList = scriptAndSqlList;
-	}
-	
-	
-	
+	}*/
+
 }

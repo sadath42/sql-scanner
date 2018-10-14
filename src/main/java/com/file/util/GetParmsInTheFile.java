@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 public class GetParmsInTheFile {
 
-	private static final String FILE_PATTERN = "([^\\s]+(\\.(?i)(param))\\b)";
+	private static final String FILE_PATTERN = "([^\\s]+(\\.(?i)(param|parm|awk|trg|cfg|sql|pl))\\b)";
 	private static final String INVALIDFILENAME = "([^A-Za-z0-9-_\\$\\{\\}\\.])";
 
 	private static Pattern pattern;
@@ -57,30 +57,9 @@ public class GetParmsInTheFile {
 				line = bufferedReader.readLine();
 
 				if (line != null && !line.isEmpty() && !"#".equals(line.charAt(0) + "")) {
-					Matcher matcher = pattern.matcher(line);
-					while (matcher.find()) {
-						String matchedString = matcher.group();
-						/*
-						 * This regular expresion match to remove any special
-						 * characters matched.
-						 */
-						LOGGER.info("First macth " + matchedString);
-						Matcher matcher2 = namePattern.matcher(matchedString);
-						int endindex = 0;
-						while (matcher2.find()) {
-							endindex = matcher2.end();
-						}
-						String finalMatch = matchedString.substring(endindex);
-						LOGGER.info("Final macth {}", finalMatch);
-
-						/*
-						 * To check weather a valid final name matched . to
-						 * avoid matches like .ksh
-						 */
-						Matcher matcherFinal = pattern.matcher(finalMatch);
-						if (matcherFinal.find()) {
-							fileList.add(finalMatch);
-						}
+					String macthedName = getParam(line);
+					if (macthedName != null) {
+						fileList.add(macthedName);
 					}
 				}
 
@@ -90,6 +69,37 @@ public class GetParmsInTheFile {
 			LOGGER.error("Error while get the parms {}", e);
 		}
 		return new ArrayList<>(fileList);
+	}
+
+	private static String getParam(String line) {
+		String finalMatch = null;
+
+		Matcher matcher = pattern.matcher(line);
+		while (matcher.find()) {
+			String matchedString = matcher.group();
+			/*
+			 * This regular expresion match to remove any special characters
+			 * matched.
+			 */
+			LOGGER.info("First macth " + matchedString);
+			Matcher matcher2 = namePattern.matcher(matchedString);
+			int endindex = 0;
+			while (matcher2.find()) {
+				endindex = matcher2.end();
+			}
+			finalMatch = matchedString.substring(endindex);
+			LOGGER.info("Final macth {}", finalMatch);
+
+			/*
+			 * To check weather a valid final name matched . to avoid matches
+			 * like .ksh
+			 */
+			Matcher matcherFinal = pattern.matcher(finalMatch);
+			if (!matcherFinal.find()) {
+				finalMatch = null;
+			}
+		}
+		return finalMatch;
 	}
 
 }
