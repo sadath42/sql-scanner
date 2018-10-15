@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import com.file.util.vo.Box;
@@ -46,6 +45,7 @@ public class FileParser {
 
 	/**
 	 * Iterates the vap and list of boxs for the vap.
+	 * 
 	 * @param vapAndBoxListMap.
 	 * @return
 	 */
@@ -59,19 +59,17 @@ public class FileParser {
 			for (String txtFileTobeProcessed : entry.getValue()) {
 				Box box = new Box();
 				box.setName(txtFileTobeProcessed);
-				Map<String,  List<BoxChild>> scriptAndSqlList = new LinkedHashMap<>();
-				//scanFile(txtFileTobeProcessed, scriptAndSqlList);
+
 				List<BoxChild> boxChilds = getBoxChilds(txtFileTobeProcessed);
-				
+
 				box.setBoxChilds(boxChilds);
 				boxs.add(box);
 			}
 		}
 		return resultVapAndBoxList;
 	}
-	
-	
-	private static List<BoxChild> getBoxChilds(String txtFileTobeProcessed){
+
+	private static List<BoxChild> getBoxChilds(String txtFileTobeProcessed) {
 		List<BoxChild> jobs = JobExtractor.getJobs(txtFileTobeProcessed);
 		for (BoxChild boxChild : jobs) {
 			List<String> files = boxChild.getFilesTobeScanned();
@@ -80,7 +78,7 @@ public class FileParser {
 				scanFile(fileTobeProcessed, childs);
 			}
 			boxChild.setKshChilds(childs);
-			
+
 		}
 		return jobs;
 	}
@@ -94,20 +92,19 @@ public class FileParser {
 		List<String> childScripts = GetScriptsInTheFile.getScripts(fileTobeProcessed);
 		if (!childScripts.isEmpty()) {
 			for (String filename : childScripts) {
-				scanFile(filename, childs);  
+				scanFile(filename, childs);
 			}
 		}
- 
+
 		KshChild boxChild = SqlExtractor.exctractSqlCommands(fileTobeProcessed);
 		childs.add(boxChild);
-		/*boolean sqlChilds = !CollectionUtils.isEmpty(boxChild.getSqlComands());
-		if (sqlChilds || !CollectionUtils.isEmpty(boxChild.getParams())) {
-			if (!sqlChilds) {
-				childs.put(fileTobeProcessed + ".txt", boxChild);
-			} else {
-				childs.put(fileTobeProcessed, boxChild);
-			}
-		} */
+		/*
+		 * boolean sqlChilds =
+		 * !CollectionUtils.isEmpty(boxChild.getSqlComands()); if (sqlChilds ||
+		 * !CollectionUtils.isEmpty(boxChild.getParams())) { if (!sqlChilds) {
+		 * childs.put(fileTobeProcessed + ".txt", boxChild); } else {
+		 * childs.put(fileTobeProcessed, boxChild); } }
+		 */
 
 	}
 

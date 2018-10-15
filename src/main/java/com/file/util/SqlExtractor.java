@@ -13,23 +13,13 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.file.util.vo.BoxChild;
+import com.file.util.constants.PATTERN;
 import com.file.util.vo.KshChild;
 import com.file.util.vo.SqlComand;
 
 public class SqlExtractor {
 
-	private static final String SQL_COMMAND_PATTERN = "^(\\s*(?i)(SELECT|UPDATE|INSERT|CREATE|TURNCATE|GRANT|DROP))";
-	private static final String SQL_PATTERN = SQL_COMMAND_PATTERN + "\\s+[\\s\\S]+?\\;\\s*?$";
-
-	private static final Pattern PATTERN;
-	private static final Pattern CMDPATTERN;
 	private static Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getSimpleName());
-	static {
-		PATTERN = Pattern.compile(SQL_PATTERN, Pattern.MULTILINE);
-		CMDPATTERN = Pattern.compile(SQL_COMMAND_PATTERN, Pattern.MULTILINE);
-
-	}
 
 	/**
 	 * Method will extract the sql command.
@@ -48,14 +38,14 @@ public class SqlExtractor {
 				String filePath = "." + File.separatorChar + fileTobeProcessed;
 				File file = new File(filePath);
 				String fileString = FileUtils.readFileToString(file, "UTF-8");
-				Matcher matcher = PATTERN.matcher(fileString);
+				Matcher matcher = PATTERN.SQLPATTERN.matcher(fileString);
 				int count = 0;
 				while (matcher.find()) {
 					count++;
 					String matchedSql = matcher.group();
 					SqlComand comand = new SqlComand();
 					comand.setCommandName("SQL" + count);
-					Matcher matcher2 = CMDPATTERN.matcher(matchedSql);
+					Matcher matcher2 = PATTERN.SQLCMDPATTERN.matcher(matchedSql);
 					matcher2.find();
 					String commandType = matcher2.group();
 					comand.setCommandType(commandType.trim());

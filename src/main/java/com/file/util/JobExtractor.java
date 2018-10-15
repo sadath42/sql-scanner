@@ -12,39 +12,12 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.file.util.constants.PATTERN;
 import com.file.util.vo.BoxChild;
 
 public class JobExtractor {
 
-	private static final String JOB_PATTERN = "^([A-Za-z0-9-_]+)";
-
-	private static final String JOB_TYPE = "job_type:(\\s*\\w+)";
-
-	private static final String CMD = "command:(\\s*.*?$)";
-
-	private static final String PARAM_PATTERN = "([^\\s]+(\\.(?i)(param|parm|awk|trg|cfg|sql|pl))\\b)";
-
-	private static final String RECURSIVE_FILE_PATTERN = "([^\\s]+(\\.(?i)(ksh))\\b)";
-	private static final String INVALIDFILENAME = "([^A-Za-z0-9-_\\$\\{\\}\\.])";
-
-	private static final Pattern jobPattern;
-	private static final Pattern jobType;
-	private static final Pattern cmdPattern;
-	private static final Pattern paramPattern;
-	private static final Pattern fileToBeProcessed;
-	private static final Pattern invalidFle;
-
 	private static Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getSimpleName());
-
-	static {
-		jobPattern = Pattern.compile(JOB_PATTERN, Pattern.MULTILINE);
-		jobType = Pattern.compile(JOB_TYPE, Pattern.MULTILINE);
-		cmdPattern = Pattern.compile(CMD, Pattern.MULTILINE);
-		paramPattern = Pattern.compile(PARAM_PATTERN, Pattern.MULTILINE);
-		fileToBeProcessed = Pattern.compile(RECURSIVE_FILE_PATTERN, Pattern.MULTILINE);
-		invalidFle = Pattern.compile(INVALIDFILENAME);
-
-	}
 
 	public static List<BoxChild> getJobs(String txtFileTobeProcessed) {
 		String filePath = "." + File.separatorChar + txtFileTobeProcessed + ".txt";
@@ -61,27 +34,27 @@ public class JobExtractor {
 				List<String> filesTobeScanned = new ArrayList<>();
 				String Job = split[i].trim();
 				// System.out.println(Job);
-				Matcher matcher = jobPattern.matcher(Job);
+				Matcher matcher = PATTERN.JOBPATTERN.matcher(Job);
 				matcher.find();
 				boxChild.setJob(matcher.group());
 				System.out.println(matcher.group());
-				matcher = jobType.matcher(Job);
+				matcher = PATTERN.JOBTYPE.matcher(Job);
 				matcher.find();
 				System.out.println(matcher.group(1));
 				boxChild.setJobType(matcher.group(1));
-				matcher = cmdPattern.matcher(Job);
+				matcher = PATTERN.CMDPATTERN.matcher(Job);
 				if (matcher.find()) {
 					System.out.println(matcher.group(1));
 					boxChild.setCommand(matcher.group(1));
 				}
-				matcher = paramPattern.matcher(Job);
+				matcher = PATTERN.PARAMPATTERN.matcher(Job);
 				while (matcher.find()) {
-					params.add(getVAlidName(matcher.group(), paramPattern));
+					params.add(getVAlidName(matcher.group(), PATTERN.PARAMPATTERN));
 				}
 				System.out.println("params \t" + params);
-				matcher = fileToBeProcessed.matcher(Job);
+				matcher = PATTERN.FILETOBEPROCESSED.matcher(Job);
 				while (matcher.find()) {
-					filesTobeScanned.add(getVAlidName(matcher.group(), fileToBeProcessed));
+					filesTobeScanned.add(getVAlidName(matcher.group(), PATTERN.FILETOBEPROCESSED));
 				}
 				boxChild.setParams(params);
 				boxChild.setFilesTobeScanned(filesTobeScanned);
@@ -97,7 +70,7 @@ public class JobExtractor {
 	}
 
 	private static String getVAlidName(String matchedString, Pattern parampattern2) {
-		Matcher matcher2 = invalidFle.matcher(matchedString);
+		Matcher matcher2 = PATTERN.INVALIDFLE.matcher(matchedString);
 		int endindex = 0;
 		while (matcher2.find()) {
 			endindex = matcher2.end();

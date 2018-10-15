@@ -10,26 +10,16 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.file.util.constants.PATTERN;
+
 public class GetParmsInTheFile {
 
-	private static final String FILE_PATTERN = "([^\\s]+(\\.(?i)(param|parm|awk|trg|cfg|sql|pl))\\b)";
-	private static final String INVALIDFILENAME = "([^A-Za-z0-9-_\\$\\{\\}\\.])";
-
-	private static Pattern pattern;
-	private static Pattern namePattern;
 	private static Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getSimpleName());
-
-	static {
-		pattern = Pattern.compile(FILE_PATTERN);
-		namePattern = Pattern.compile(INVALIDFILENAME);
-
-	}
 
 	/**
 	 * Method returns the list of shell scripts referenced.
@@ -74,7 +64,7 @@ public class GetParmsInTheFile {
 	private static String getParam(String line) {
 		String finalMatch = null;
 
-		Matcher matcher = pattern.matcher(line);
+		Matcher matcher = PATTERN.PARAMPATTERN.matcher(line);
 		while (matcher.find()) {
 			String matchedString = matcher.group();
 			/*
@@ -82,7 +72,7 @@ public class GetParmsInTheFile {
 			 * matched.
 			 */
 			LOGGER.info("First macth " + matchedString);
-			Matcher matcher2 = namePattern.matcher(matchedString);
+			Matcher matcher2 = PATTERN.INVALIDFLE.matcher(matchedString);
 			int endindex = 0;
 			while (matcher2.find()) {
 				endindex = matcher2.end();
@@ -94,7 +84,7 @@ public class GetParmsInTheFile {
 			 * To check weather a valid final name matched . to avoid matches
 			 * like .ksh
 			 */
-			Matcher matcherFinal = pattern.matcher(finalMatch);
+			Matcher matcherFinal = PATTERN.PARAMPATTERN.matcher(finalMatch);
 			if (!matcherFinal.find()) {
 				finalMatch = null;
 			}
