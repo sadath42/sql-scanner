@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +76,10 @@ public class FileParser {
 			List<String> files = boxChild.getFilesTobeScanned();
 			List<KshChild> childs = new ArrayList<>();
 			for (String fileTobeProcessed : files) {
-				scanFile(fileTobeProcessed, childs);
+				//To remove duplicate and recurive parsing
+				HashSet<String> fileNames = new HashSet<>();
+				fileNames.add(fileTobeProcessed);
+				scanFile(fileTobeProcessed, childs,fileNames);
 			}
 			boxChild.setKshChilds(childs);
 
@@ -86,13 +90,14 @@ public class FileParser {
 	/**
 	 * @param fileTobeProcessed
 	 * @param childs
+	 * @param fileNames 
 	 */
-	private static void scanFile(String fileTobeProcessed, List<KshChild> childs) {
+	private static void scanFile(String fileTobeProcessed, List<KshChild> childs, HashSet<String> fileNames) {
 
-		List<String> childScripts = GetScriptsInTheFile.getScripts(fileTobeProcessed);
+		List<String> childScripts = GetScriptsInTheFile.getScripts(fileTobeProcessed,fileNames);
 		if (!childScripts.isEmpty()) {
 			for (String filename : childScripts) {
-				scanFile(filename, childs);
+				scanFile(filename, childs,fileNames);
 			}
 		}
 

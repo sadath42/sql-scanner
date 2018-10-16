@@ -26,11 +26,12 @@ public class GetScriptsInTheFile {
 	 * Method returns the list of shell scripts referenced.
 	 * 
 	 * @param fileTobeProcessed
+	 * @param fileNames 
 	 * @return
 	 */
-	public static List<String> getScripts(String fileTobeProcessed) {
-		HashSet<String> fileList = new LinkedHashSet<>();
-		String filePath;
+	public static List<String> getScripts(String fileTobeProcessed, HashSet<String> fileNames) {
+		List<String> fileList = new ArrayList<>();
+		String filePath; 
 		if (FilenameUtils.getExtension(fileTobeProcessed).isEmpty()) {
 			filePath = "." + File.separatorChar + fileTobeProcessed + ".txt";
 
@@ -69,7 +70,7 @@ public class GetScriptsInTheFile {
 						 * avoid matches like .ksh
 						 */
 						Matcher matcherFinal = PATTERN.FILETOBEPROCESSED.matcher(finalMatch);
-						if (matcherFinal.find()) {
+						if (matcherFinal.find() && fileNames.add(finalMatch)) {							
 							fileList.add(finalMatch);
 						}
 					}
@@ -80,7 +81,7 @@ public class GetScriptsInTheFile {
 		} catch (IOException e) {
 			LOGGER.error("Error while parsinfg scripts {}", e);
 		}
-		return new ArrayList<>(fileList);
+		return fileList;
 	}
 
 }

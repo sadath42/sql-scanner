@@ -37,5 +37,6 @@ public class KshChild {
 	public void setSqlComands(List<SqlComand> sqlComands) {
 		this.sqlComands = sqlComands;
 	}
+	
 
 }
