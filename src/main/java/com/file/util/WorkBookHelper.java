@@ -15,11 +15,15 @@ import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellUtil;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -139,14 +143,17 @@ public class WorkBookHelper {
 		int i = 0;
 
 		for (BoxChild boxChild : list) {
+			int firstRow = sheet1.getPhysicalNumberOfRows()-1;
+			
 			boolean firstChildForBox = true;
 			if (i != 0) {
+				firstRow=rownNum;
 				row = sheet1.createRow(rownNum);
 				rownNum++;
 			}
 			row.createCell(2).setCellValue(boxChild.getJob());
 			row.createCell(3).setCellValue(boxChild.getJobType());
-			 row.createCell(4).setCellValue(boxChild.getCommand());
+			row.createCell(4).setCellValue(boxChild.getCommand());
 			List<String> params = boxChild.getParams();
 
 			if (!params.isEmpty()) {
@@ -192,22 +199,20 @@ public class WorkBookHelper {
 					if (paramiterator.hasNext()) {
 						row.createCell(8).setCellValue(paramiterator.next());
 					}
-					/*
-					 * } else { row = sheet1.createRow(rownNum); rownNum++; if
-					 * (sqlIterator.hasNext()) { sqlComand = sqlIterator.next();
-					 * 
-					 * row.createCell(3).setCellValue(sqlComand.getCommandName()
-					 * );
-					 * row.createCell(4).setCellValue(sqlComand.getCommandType()
-					 * ); } if (paramiterator.hasNext()) {
-					 * row.createCell(5).setCellValue(paramiterator.next()); } }
-					 */
+
 					firstChildForBox = false;
 					j++;
 				}
 
 			}
 			i++;
+			int lastRow = sheet1.getPhysicalNumberOfRows() - 1;
+			if (firstRow != lastRow){
+				mergeCellsAndAllignCenter(sheet1, firstRow, lastRow, 2, 2);
+				mergeCellsAndAllignCenter(sheet1, firstRow, lastRow, 3, 3);
+				mergeCellsAndAllignCenter(sheet1, firstRow, lastRow, 4, 4);
+
+			}
 
 		}
 
@@ -225,16 +230,24 @@ public class WorkBookHelper {
 
 		for (Entry<String, List<Box>> entry : resultVapAndBoxList.entrySet()) {
 			int vapCount = 0;
+			int firstRowForVap = sheet1.getPhysicalNumberOfRows();
 
 			for (Box box : entry.getValue()) {
+				int firstRow = sheet1.getPhysicalNumberOfRows();
 
-				XSSFRow row = sheet1.createRow(sheet1.getPhysicalNumberOfRows());
+				XSSFRow row = sheet1.createRow(firstRow);
 				if (vapCount == 0) {
 					row.createCell(0).setCellValue(entry.getKey());
 				}
 				writeScriptAndSqlDataToExcel(row, box.getName(), box.getBoxChilds(), sheet1);
 				vapCount++;
+				int lastRow = sheet1.getPhysicalNumberOfRows() - 1;
+				if (firstRow != lastRow)
+					mergeCellsAndAllignCenter(sheet1, firstRow, lastRow, 1, 1);
 			}
+			int lastRowVap = sheet1.getPhysicalNumberOfRows() - 1;
+			if (firstRowForVap != lastRowVap)
+				mergeCellsAndAllignCenter(sheet1, firstRowForVap, lastRowVap, 0, 0);
 		}
 
 		try (FileOutputStream outputStream = new FileOutputStream("result.xlsx")) {
@@ -243,6 +256,16 @@ public class WorkBookHelper {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static void mergeCellsAndAllignCenter(XSSFSheet sheet1, int firstRow, int lastRow, int firstCol,
+			int lastCol) {
+
+		XSSFCell boxCell = sheet1.getRow(firstRow).getCell(firstCol);
+		sheet1.addMergedRegion(new CellRangeAddress(firstRow, lastRow, firstCol, lastCol));
+		CellUtil.setVerticalAlignment(boxCell, VerticalAlignment.CENTER);
+		CellUtil.setAlignment(boxCell, HorizontalAlignment.CENTER);
+
 	}
 
 }

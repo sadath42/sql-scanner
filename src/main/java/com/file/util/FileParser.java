@@ -79,7 +79,7 @@ public class FileParser {
 				//To remove duplicate and recurive parsing
 				HashSet<String> fileNames = new HashSet<>();
 				fileNames.add(fileTobeProcessed);
-				scanFile(fileTobeProcessed, childs,fileNames);
+				scanFile(fileTobeProcessed, childs,fileNames,boxChild.getCmdParams());
 			}
 			boxChild.setKshChilds(childs);
 
@@ -91,17 +91,18 @@ public class FileParser {
 	 * @param fileTobeProcessed
 	 * @param childs
 	 * @param fileNames 
+	 * @param cmdParams 
 	 */
-	private static void scanFile(String fileTobeProcessed, List<KshChild> childs, HashSet<String> fileNames) {
+	private static void scanFile(String fileTobeProcessed, List<KshChild> childs, HashSet<String> fileNames, Map<String, String> cmdParams) {
 
 		List<String> childScripts = GetScriptsInTheFile.getScripts(fileTobeProcessed,fileNames);
 		if (!childScripts.isEmpty()) {
 			for (String filename : childScripts) {
-				scanFile(filename, childs,fileNames);
+				scanFile(filename, childs,fileNames, cmdParams);
 			}
 		}
-
-		KshChild boxChild = SqlExtractor.exctractSqlCommands(fileTobeProcessed);
+ 
+		KshChild boxChild = SqlExtractor.exctractSqlCommands(fileTobeProcessed,cmdParams);
 		childs.add(boxChild);
 		/*
 		 * boolean sqlChilds =

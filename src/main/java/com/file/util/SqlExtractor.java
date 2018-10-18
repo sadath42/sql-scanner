@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,15 +26,16 @@ public class SqlExtractor {
 	 * Method will extract the sql command.
 	 * 
 	 * @param fileTobeProcessed
+	 * @param cmdParams 
 	 * @param node
 	 */
-	public static KshChild exctractSqlCommands(String fileTobeProcessed) {
+	public static KshChild exctractSqlCommands(String fileTobeProcessed, Map<String, String> cmdParams) {
 		KshChild boxChild = new KshChild(fileTobeProcessed);
 		List<SqlComand> comands = new ArrayList<>();
 		try {
 
 			if (FilenameUtils.getExtension(fileTobeProcessed).isEmpty()) {
-				boxChild.setParams(GetParmsInTheFile.getParams(fileTobeProcessed));
+				boxChild.setParams(GetParmsInTheFile.getParams(fileTobeProcessed,cmdParams));
 			} else {
 				String filePath = "." + File.separatorChar + fileTobeProcessed;
 				File file = new File(filePath);
@@ -52,7 +54,7 @@ public class SqlExtractor {
 					comands.add(comand);
 				}
 				boxChild.setSqlComands(comands);
-				boxChild.setParams(GetParmsInTheFile.getParams(fileTobeProcessed));
+				boxChild.setParams(GetParmsInTheFile.getParams(fileTobeProcessed,cmdParams));
 			}
 
 		} catch (IOException e) {

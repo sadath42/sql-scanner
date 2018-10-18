@@ -4,7 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,6 +22,16 @@ import com.file.util.vo.BoxChild;
 public class JobExtractor {
 
 	private static Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getSimpleName());
+
+	private static final Map<Character, String> paramKeys = new HashMap<>();
+
+	static {
+		paramKeys.put('i', "CRH_JOB_ID");
+		paramKeys.put('j', "CRH_JOB");
+		paramKeys.put('p', "CRH_PARAM_FILE");
+		paramKeys.put('f', "CRH_FILE_NM");
+
+	}
 
 	public static List<BoxChild> getJobs(String txtFileTobeProcessed) {
 		String filePath = "." + File.separatorChar + txtFileTobeProcessed + ".txt";
@@ -44,8 +58,10 @@ public class JobExtractor {
 				boxChild.setJobType(matcher.group(1));
 				matcher = PATTERN.CMDPATTERN.matcher(Job);
 				if (matcher.find()) {
-					System.out.println(matcher.group(1));
-					boxChild.setCommand(matcher.group(1));
+					String command = matcher.group(1);
+					System.out.println(command);
+					boxChild.setCommand(command);
+					setCmdParams(command, boxChild.getCmdParams());
 				}
 				matcher = PATTERN.PARAMPATTERN.matcher(Job);
 				while (matcher.find()) {
@@ -68,6 +84,23 @@ public class JobExtractor {
 		}
 		return boxChilds;
 	}
+
+	private static void setCmdParams(String command, Map<String, String> cmdParams) {
+		Set<Entry<Character, String>> entrySet = paramKeys.entrySet();
+
+		for (Entry<Character, String> paramEntry : entrySet) {
+			String regex = ".*?\\s+-" + paramEntry.getKey() + "\\s+([A-Za-z0-9-_]+)\\b.*";
+			Pattern PARAM = Pattern.compile(regex, Pattern.MULTILINE);
+			Matcher matcher = PARAM.matcher(command);
+			if (matcher.find()) {
+				System.out.println(paramEntry.getValue() + "------------>" + matcher.group(1));
+				cmdParams.put(paramEntry.getValue(), matcher.group(1));
+			}
+		}
+
+	}
+
+	
 
 	private static String getVAlidName(String matchedString, Pattern parampattern2) {
 		Matcher matcher2 = PATTERN.INVALIDFLE.matcher(matchedString);

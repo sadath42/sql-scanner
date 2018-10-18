@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 import org.apache.commons.io.FilenameUtils;
@@ -25,9 +26,10 @@ public class GetParmsInTheFile {
 	 * Method returns the list of shell scripts referenced.
 	 * 
 	 * @param fileTobeProcessed
+	 * @param cmdParams
 	 * @return
 	 */
-	public static List<String> getParams(String fileTobeProcessed) {
+	public static List<String> getParams(String fileTobeProcessed, Map<String, String> cmdParams) {
 		HashSet<String> fileList = new LinkedHashSet<>();
 		String filePath;
 		if (FilenameUtils.getExtension(fileTobeProcessed).isEmpty()) {
@@ -49,6 +51,7 @@ public class GetParmsInTheFile {
 				if (line != null && !line.isEmpty() && !"#".equals(line.charAt(0) + "")) {
 					String macthedName = getParam(line);
 					if (macthedName != null) {
+						macthedName = resolveParamIfAny(macthedName, cmdParams);
 						fileList.add(macthedName);
 					}
 				}
@@ -59,6 +62,17 @@ public class GetParmsInTheFile {
 			LOGGER.error("Error while get the parms {}", e);
 		}
 		return new ArrayList<>(fileList);
+	}
+
+	private static String resolveParamIfAny(String macthedName, Map<String, String> cmdParams) {
+		Matcher matcher = PATTERN.PARAM_ARG_PATTERN.matcher(macthedName);
+		if (matcher.find() && cmdParams != null) {
+			String paramArg = matcher.group(1);
+			String resolvedParam = cmdParams.get(paramArg.toUpperCase());
+			if (resolvedParam != null)
+				macthedName = macthedName.replace(matcher.group(), resolvedParam);
+		}
+		return macthedName;
 	}
 
 	private static String getParam(String line) {

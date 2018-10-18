@@ -1,7 +1,9 @@
 package com.file.util.vo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BoxChild {
 
@@ -16,6 +18,16 @@ public class BoxChild {
 	private List<KshChild> kshChilds = new ArrayList<>();
 
 	private List<String> filesTobeScanned = new ArrayList<>();
+
+	private Map<String, String> cmdParams = new HashMap<>();
+
+	public Map<String, String> getCmdParams() {
+		return cmdParams;
+	}
+
+	public void setCmdParams(Map<String, String> cmdParams) {
+		this.cmdParams = cmdParams;
+	}
 
 	public List<KshChild> getKshChilds() {
 		return kshChilds;
@@ -64,13 +76,11 @@ public class BoxChild {
 	public void setParams(List<String> params) {
 		this.params = params;
 	}
-	
 
 	@Override
 	public String toString() {
 		return "BoxChild [params=" + params + ", job=" + job + ", jobType=" + jobType + ", command=" + command
 				+ ", kshChilds=" + kshChilds + ", filesTobeScanned=" + filesTobeScanned + "]";
 	}
-
 
 }
