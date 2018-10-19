@@ -104,14 +104,7 @@ public class FileParser {
  
 		KshChild boxChild = SqlExtractor.exctractSqlCommands(fileTobeProcessed,cmdParams);
 		childs.add(boxChild);
-		/*
-		 * boolean sqlChilds =
-		 * !CollectionUtils.isEmpty(boxChild.getSqlComands()); if (sqlChilds ||
-		 * !CollectionUtils.isEmpty(boxChild.getParams())) { if (!sqlChilds) {
-		 * childs.put(fileTobeProcessed + ".txt", boxChild); } else {
-		 * childs.put(fileTobeProcessed, boxChild); } }
-		 */
-
+		
 	}
 
 	private static void copyFiles(String fileTobeProcessed) {

@@ -35,12 +35,9 @@ public class GetScriptsInTheFile {
 	public static List<String> getScripts(String fileTobeProcessed, HashSet<String> fileNames) {
 		List<String> fileList = new ArrayList<>();
 		String filePath;
-		if (FilenameUtils.getExtension(fileTobeProcessed).isEmpty()) {
-			filePath = "." + File.separatorChar + fileTobeProcessed + ".txt";
 
-		} else {
-			filePath = "." + File.separatorChar + fileTobeProcessed;
-		}
+		filePath = "." + File.separatorChar + fileTobeProcessed;
+
 		LOGGER.info("---------------------------->Started reading file {}", fileTobeProcessed);
 		try (FileReader reader = new FileReader(filePath)) {
 
@@ -77,11 +74,12 @@ public class GetScriptsInTheFile {
 						if (matcherFinal.find() && fileNames.add(finalMatch)) {
 							fileList.add(finalMatch);
 						}
-						for (String cfgFile : cfgFiles) {
-							if (fileNames.add(finalMatch)) {
-								fileList.add(cfgFile);
 
-							}
+					}
+					for (String cfgFile : cfgFiles) {
+						if (fileNames.add(cfgFile)) {
+							fileList.add(cfgFile);
+
 						}
 					}
 				}
@@ -94,12 +92,17 @@ public class GetScriptsInTheFile {
 		return fileList;
 	}
 
+	/**
+	 * Method to extract the file reference without the extension.
+	 * 
+	 * @param line
+	 * @return
+	 */
 	private static List<String> getConfigWithoutExtension(String line) {
 		List<String> cfFiles = new ArrayList<>();
 		String regex = "\\s*?[\\.|(?i)sh]\\s+(\\$\\{CONFIGDIR\\}\\/)(\\w+)\\s*";
 		Pattern PARAM = Pattern.compile(regex, Pattern.MULTILINE);
-		String command = ". ${CONFIGDIR}/CRH_LIB asffas aSDasd sh ${CONFIGDIR}/CRH_LIB2 ";
-		Matcher matcher = PARAM.matcher(command);
+		Matcher matcher = PARAM.matcher(line);
 		while (matcher.find()) {
 			System.out.println(matcher.group(2));
 			cfFiles.add(matcher.group(2));

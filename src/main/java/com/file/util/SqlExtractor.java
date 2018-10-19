@@ -34,7 +34,7 @@ public class SqlExtractor {
 		List<SqlComand> comands = new ArrayList<>();
 		try {
 
-			if (FilenameUtils.getExtension(fileTobeProcessed).isEmpty()) {
+			if ("txt".equals(FilenameUtils.getExtension(fileTobeProcessed))) {
 				boxChild.setParams(GetParmsInTheFile.getParams(fileTobeProcessed,cmdParams));
 			} else {
 				String filePath = "." + File.separatorChar + fileTobeProcessed;

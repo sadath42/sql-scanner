@@ -4,11 +4,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.hssf.usermodel.HSSFFont;
@@ -134,9 +136,10 @@ public class WorkBookHelper {
 	 * @param txtFileTobeProcessed
 	 * @param list
 	 * @param sheet1
+	 * @param cmdAndCount 
 	 */
 	public static void writeScriptAndSqlDataToExcel(XSSFRow row, String txtFileTobeProcessed, List<BoxChild> list,
-			XSSFSheet sheet1) {
+			XSSFSheet sheet1, Map<String, Integer> cmdAndCount) {
 		int rownNum = sheet1.getPhysicalNumberOfRows();
 
 		row.createCell(1).setCellValue(txtFileTobeProcessed);
@@ -195,6 +198,13 @@ public class WorkBookHelper {
 						sqlComand = sqlIterator.next();
 						row.createCell(6).setCellValue(sqlComand.getCommandName());
 						row.createCell(7).setCellValue(sqlComand.getCommandType());
+						Integer cmDCount=cmdAndCount.get(sqlComand.getCommandType());
+						if(cmDCount==null){
+							cmdAndCount.put(sqlComand.getCommandType(), 1);
+						}else{
+							cmDCount++;
+							cmdAndCount.put(sqlComand.getCommandType(), cmDCount);
+						}
 					}
 					if (paramiterator.hasNext()) {
 						row.createCell(8).setCellValue(paramiterator.next());
@@ -230,6 +240,7 @@ public class WorkBookHelper {
 
 		for (Entry<String, List<Box>> entry : resultVapAndBoxList.entrySet()) {
 			int vapCount = 0;
+			Map<String, Integer> cmdAndCount = new HashMap<>();
 			int firstRowForVap = sheet1.getPhysicalNumberOfRows();
 
 			for (Box box : entry.getValue()) {
@@ -239,7 +250,7 @@ public class WorkBookHelper {
 				if (vapCount == 0) {
 					row.createCell(0).setCellValue(entry.getKey());
 				}
-				writeScriptAndSqlDataToExcel(row, box.getName(), box.getBoxChilds(), sheet1);
+				writeScriptAndSqlDataToExcel(row, box.getName(), box.getBoxChilds(), sheet1,cmdAndCount);
 				vapCount++;
 				int lastRow = sheet1.getPhysicalNumberOfRows() - 1;
 				if (firstRow != lastRow)
@@ -248,6 +259,8 @@ public class WorkBookHelper {
 			int lastRowVap = sheet1.getPhysicalNumberOfRows() - 1;
 			if (firstRowForVap != lastRowVap)
 				mergeCellsAndAllignCenter(sheet1, firstRowForVap, lastRowVap, 0, 0);
+			
+			print(cmdAndCount);
 		}
 
 		try (FileOutputStream outputStream = new FileOutputStream("result.xlsx")) {
@@ -255,6 +268,14 @@ public class WorkBookHelper {
 			workbookout.close();
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	private static void print(Map<String, Integer> cmdAndCount) {		
+		
+		Set<Entry<String, Integer>> entrySet = cmdAndCount.entrySet();
+		for (Entry<String, Integer> entry : entrySet) {
+			System.out.println(entry.getKey()+"-------------------------->"+entry.getValue());
 		}
 	}
 
