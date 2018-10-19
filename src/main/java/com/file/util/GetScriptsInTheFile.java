@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,12 +29,12 @@ public class GetScriptsInTheFile {
 	 * Method returns the list of shell scripts referenced.
 	 * 
 	 * @param fileTobeProcessed
-	 * @param fileNames 
+	 * @param fileNames
 	 * @return
 	 */
 	public static List<String> getScripts(String fileTobeProcessed, HashSet<String> fileNames) {
 		List<String> fileList = new ArrayList<>();
-		String filePath; 
+		String filePath;
 		if (FilenameUtils.getExtension(fileTobeProcessed).isEmpty()) {
 			filePath = "." + File.separatorChar + fileTobeProcessed + ".txt";
 
@@ -49,6 +52,7 @@ public class GetScriptsInTheFile {
 				line = bufferedReader.readLine();
 
 				if (line != null && !line.isEmpty() && !"#".equals(line.charAt(0) + "")) {
+					List<String> cfgFiles = getConfigWithoutExtension(line);
 					Matcher matcher = PATTERN.FILETOBEPROCESSED.matcher(line);
 					while (matcher.find()) {
 						String matchedString = matcher.group();
@@ -70,8 +74,14 @@ public class GetScriptsInTheFile {
 						 * avoid matches like .ksh
 						 */
 						Matcher matcherFinal = PATTERN.FILETOBEPROCESSED.matcher(finalMatch);
-						if (matcherFinal.find() && fileNames.add(finalMatch)) {							
+						if (matcherFinal.find() && fileNames.add(finalMatch)) {
 							fileList.add(finalMatch);
+						}
+						for (String cfgFile : cfgFiles) {
+							if (fileNames.add(finalMatch)) {
+								fileList.add(cfgFile);
+
+							}
 						}
 					}
 				}
@@ -82,6 +92,24 @@ public class GetScriptsInTheFile {
 			LOGGER.error("Error while parsinfg scripts {}", e);
 		}
 		return fileList;
+	}
+
+	private static List<String> getConfigWithoutExtension(String line) {
+		List<String> cfFiles = new ArrayList<>();
+		String regex = "\\s*?[\\.|(?i)sh]\\s+(\\$\\{CONFIGDIR\\}\\/)(\\w+)\\s*";
+		Pattern PARAM = Pattern.compile(regex, Pattern.MULTILINE);
+		String command = ". ${CONFIGDIR}/CRH_LIB asffas aSDasd sh ${CONFIGDIR}/CRH_LIB2 ";
+		Matcher matcher = PARAM.matcher(command);
+		while (matcher.find()) {
+			System.out.println(matcher.group(2));
+			cfFiles.add(matcher.group(2));
+
+		}
+
+		return cfFiles;
+	}
+
+	public static void main(String[] args) {
 	}
 
 }

@@ -12,6 +12,7 @@ public interface PATTERN {
 	String INVALIDFILENAME = "([^A-Za-z0-9-_\\$\\{\\}\\.])";
 	String SQL_COMMAND = "^(\\s*(?i)(SELECT|UPDATE|INSERT|CREATE|TURNCATE|GRANT|DROP))";
 	String SQL = SQL_COMMAND + "\\s+[\\s\\S]+?\\;\\s*?$";
+	
 
 	String PARAM_ARG = "\\$\\{(.*?)\\}";
 	Pattern PARAM_ARG_PATTERN = Pattern.compile(PARAM_ARG, Pattern.MULTILINE);
