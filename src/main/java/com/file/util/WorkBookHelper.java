@@ -136,7 +136,7 @@ public class WorkBookHelper {
 	 * @param txtFileTobeProcessed
 	 * @param list
 	 * @param sheet1
-	 * @param cmdAndCount 
+	 * @param cmdAndCount
 	 */
 	public static void writeScriptAndSqlDataToExcel(XSSFRow row, String txtFileTobeProcessed, List<BoxChild> list,
 			XSSFSheet sheet1, Map<String, Integer> cmdAndCount) {
@@ -146,11 +146,11 @@ public class WorkBookHelper {
 		int i = 0;
 
 		for (BoxChild boxChild : list) {
-			int firstRow = sheet1.getPhysicalNumberOfRows()-1;
-			
+			int firstRow = sheet1.getPhysicalNumberOfRows() - 1;
+
 			boolean firstChildForBox = true;
 			if (i != 0) {
-				firstRow=rownNum;
+				firstRow = rownNum;
 				row = sheet1.createRow(rownNum);
 				rownNum++;
 			}
@@ -198,10 +198,10 @@ public class WorkBookHelper {
 						sqlComand = sqlIterator.next();
 						row.createCell(6).setCellValue(sqlComand.getCommandName());
 						row.createCell(7).setCellValue(sqlComand.getCommandType());
-						Integer cmDCount=cmdAndCount.get(sqlComand.getCommandType());
-						if(cmDCount==null){
+						Integer cmDCount = cmdAndCount.get(sqlComand.getCommandType());
+						if (cmDCount == null) {
 							cmdAndCount.put(sqlComand.getCommandType(), 1);
-						}else{
+						} else {
 							cmDCount++;
 							cmdAndCount.put(sqlComand.getCommandType(), cmDCount);
 						}
@@ -217,7 +217,7 @@ public class WorkBookHelper {
 			}
 			i++;
 			int lastRow = sheet1.getPhysicalNumberOfRows() - 1;
-			if (firstRow != lastRow){
+			if (firstRow != lastRow) {
 				mergeCellsAndAllignCenter(sheet1, firstRow, lastRow, 2, 2);
 				mergeCellsAndAllignCenter(sheet1, firstRow, lastRow, 3, 3);
 				mergeCellsAndAllignCenter(sheet1, firstRow, lastRow, 4, 4);
@@ -235,32 +235,32 @@ public class WorkBookHelper {
 	 */
 	public static void writeResultToExcel(Map<String, List<Box>> resultVapAndBoxList) {
 		XSSFWorkbook workbookout = new XSSFWorkbook();
-		XSSFSheet sheet1 = workbookout.createSheet("results");
-		WorkBookHelper.initializeExcel(workbookout, sheet1);
+		XSSFSheet resultSheet = workbookout.createSheet("results");
+		WorkBookHelper.initializeExcel(workbookout, resultSheet);
 
 		for (Entry<String, List<Box>> entry : resultVapAndBoxList.entrySet()) {
 			int vapCount = 0;
 			Map<String, Integer> cmdAndCount = new HashMap<>();
-			int firstRowForVap = sheet1.getPhysicalNumberOfRows();
+			int firstRowForVap = resultSheet.getPhysicalNumberOfRows();
 
 			for (Box box : entry.getValue()) {
-				int firstRow = sheet1.getPhysicalNumberOfRows();
+				int firstRow = resultSheet.getPhysicalNumberOfRows();
 
-				XSSFRow row = sheet1.createRow(firstRow);
+				XSSFRow row = resultSheet.createRow(firstRow);
 				if (vapCount == 0) {
 					row.createCell(0).setCellValue(entry.getKey());
 				}
-				writeScriptAndSqlDataToExcel(row, box.getName(), box.getBoxChilds(), sheet1,cmdAndCount);
+				writeScriptAndSqlDataToExcel(row, box.getName(), box.getBoxChilds(), resultSheet, cmdAndCount);
 				vapCount++;
-				int lastRow = sheet1.getPhysicalNumberOfRows() - 1;
+				int lastRow = resultSheet.getPhysicalNumberOfRows() - 1;
 				if (firstRow != lastRow)
-					mergeCellsAndAllignCenter(sheet1, firstRow, lastRow, 1, 1);
+					mergeCellsAndAllignCenter(resultSheet, firstRow, lastRow, 1, 1);
 			}
-			int lastRowVap = sheet1.getPhysicalNumberOfRows() - 1;
+			writeSqlCounts(cmdAndCount, resultSheet);
+			int lastRowVap = resultSheet.getPhysicalNumberOfRows() - 1;
 			if (firstRowForVap != lastRowVap)
-				mergeCellsAndAllignCenter(sheet1, firstRowForVap, lastRowVap, 0, 0);
-			
-			print(cmdAndCount);
+				mergeCellsAndAllignCenter(resultSheet, firstRowForVap, lastRowVap, 0, 0);
+
 		}
 
 		try (FileOutputStream outputStream = new FileOutputStream("result.xlsx")) {
@@ -271,11 +271,21 @@ public class WorkBookHelper {
 		}
 	}
 
-	private static void print(Map<String, Integer> cmdAndCount) {		
-		
+	/**
+	 * Writes the sql type counts for a particular vap.
+	 * 
+	 * @param cmdAndCount
+	 * @param resultSheet
+	 */
+	private static void writeSqlCounts(Map<String, Integer> cmdAndCount, XSSFSheet resultSheet) {
+
 		Set<Entry<String, Integer>> entrySet = cmdAndCount.entrySet();
 		for (Entry<String, Integer> entry : entrySet) {
-			System.out.println(entry.getKey()+"-------------------------->"+entry.getValue());
+			int firstRow = resultSheet.getPhysicalNumberOfRows();
+			XSSFRow row = resultSheet.createRow(firstRow);
+			row.createCell(6).setCellValue(entry.getKey());
+			row.createCell(7).setCellValue(entry.getValue());
+			System.out.println(entry.getKey() + "-------------------------->" + entry.getValue());
 		}
 	}
 
