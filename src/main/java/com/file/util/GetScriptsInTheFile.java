@@ -74,8 +74,7 @@ public class GetScriptsInTheFile {
 					}
 					for (String cfgFile : cfgFiles) {
 						if (fileNames.add(cfgFile)) {
-							fileList.add(cfgFile);
-
+							//fileList.add(cfgFile);
 						}
 					}
 				}
