@@ -8,6 +8,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,11 +27,12 @@ public class GetScriptsInTheFile {
 	 * 
 	 * @param fileTobeProcessed
 	 * @param fileNames
+	 * @param cfgFiles2 
 	 * @return
 	 */
-	public static List<String> getScripts(String fileTobeProcessed, HashSet<String> fileNames) {
+	public static List<String> getScripts(String fileTobeProcessed, HashSet<String> fileNames, Set<String> vapCfgFiles) {
 		List<String> fileList = new ArrayList<>();
-		String filePath;
+		String filePath; 
 
 		filePath = "." + File.separatorChar + fileTobeProcessed;
 
@@ -73,8 +75,8 @@ public class GetScriptsInTheFile {
 
 					}
 					for (String cfgFile : cfgFiles) {
-						if (fileNames.add(cfgFile)) {
-							//fileList.add(cfgFile);
+						if (vapCfgFiles.add(cfgFile)) {
+							fileList.add(cfgFile);
 						}
 					}
 				}

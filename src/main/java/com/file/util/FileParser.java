@@ -5,9 +5,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
@@ -54,12 +56,13 @@ public class FileParser {
 		for (Entry<String, List<String>> entry : vapAndBoxListMap.entrySet()) {
 			List<Box> boxs = new ArrayList<>();
 			resultVapAndBoxList.put(entry.getKey(), boxs);
+			Set<String> cfgFiles = new LinkedHashSet<>();
 
 			for (String txtFileTobeProcessed : entry.getValue()) {
 				Box box = new Box();
 				box.setName(txtFileTobeProcessed);
 
-				List<BoxChild> boxChilds = getBoxChilds(txtFileTobeProcessed);
+				List<BoxChild> boxChilds = getBoxChilds(txtFileTobeProcessed,cfgFiles);
 
 				box.setBoxChilds(boxChilds);
 				boxs.add(box);
@@ -74,9 +77,10 @@ public class FileParser {
 	 * the script.
 	 * 
 	 * @param txtFileTobeProcessed
+	 * @param cfgFiles 
 	 * @return
 	 */
-	private static List<BoxChild> getBoxChilds(String txtFileTobeProcessed) {
+	private static List<BoxChild> getBoxChilds(String txtFileTobeProcessed, Set<String> cfgFiles) {
 		List<BoxChild> jobs = JobExtractor.getJobs(txtFileTobeProcessed);
 		for (BoxChild boxChild : jobs) {
 			List<String> files = boxChild.getFilesTobeScanned();
@@ -85,8 +89,8 @@ public class FileParser {
 				// To remove duplicate and recurive parsing
 				HashSet<String> fileNames = new HashSet<>();
 				fileNames.add(fileTobeProcessed);
-				scanFile(fileTobeProcessed, childs, fileNames, boxChild.getCmdParams());
-			}
+				scanFile(fileTobeProcessed, childs, fileNames, boxChild.getCmdParams(),cfgFiles);
+			} 
 			boxChild.setKshChilds(childs);
 
 		}
@@ -99,16 +103,17 @@ public class FileParser {
 	 * @param childs
 	 * @param fileNames
 	 * @param cmdParams
+	 * @param cfgFiles 
 	 */
 	private static void scanFile(String fileTobeProcessed, List<KshChild> childs, HashSet<String> fileNames,
-			Map<String, String> cmdParams) {
+			Map<String, String> cmdParams, Set<String> cfgFiles) {
 
-		List<String> childScripts = GetScriptsInTheFile.getScripts(fileTobeProcessed, fileNames);
+		List<String> childScripts = GetScriptsInTheFile.getScripts(fileTobeProcessed, fileNames,cfgFiles);
 		if (!childScripts.isEmpty()) {
 			for (String filename : childScripts) {
-				scanFile(filename, childs, fileNames, cmdParams);
+				scanFile(filename, childs, fileNames, cmdParams,cfgFiles);
 			}
-		}
+		} 
 
 		KshChild boxChild = SqlExtractor.exctractSqlCommands(fileTobeProcessed, cmdParams);
 		childs.add(boxChild);
