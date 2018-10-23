@@ -5,20 +5,49 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * It is the child of box . Each box will have n childs. Each job is considered
+ * as a child of the box.
+ *
+ */
 public class BoxChild {
 
+	/**
+	 * List of the parameters present in the job.
+	 */
 	private List<String> params = new ArrayList<>();;
 
+	/**
+	 * Name of the job . It is the child of a box.
+	 */
 	private String job;
 
+	/**
+	 * Type of job
+	 */
 	private String jobType;
 
+	/**
+	 * Command executed for the job.
+	 */
 	private String command;
 
+	/**
+	 * List of files which are parsed recursively and its associated parameters
+	 * and sql commands.
+	 */
 	private List<KshChild> kshChilds = new ArrayList<>();
 
+	/**
+	 * Files to be parsed recursively. This list will be populated during the
+	 * extraction of jobs.Then this list is recursively iterated to get the
+	 * scripts which are to be parsed.
+	 */
 	private List<String> filesTobeScanned = new ArrayList<>();
 
+	/**
+	 * The parmaters which are part of the command being executed.
+	 */
 	private Map<String, String> cmdParams = new HashMap<>();
 
 	public Map<String, String> getCmdParams() {

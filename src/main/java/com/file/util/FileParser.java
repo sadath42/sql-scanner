@@ -2,8 +2,6 @@ package com.file.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -70,16 +68,24 @@ public class FileParser {
 		return resultVapAndBoxList;
 	}
 
+	/**
+	 * Extracts the child's of the box .Each job being the child of box.
+	 * Recursively iterates the scripts to extract the sql and params invoked in
+	 * the script.
+	 * 
+	 * @param txtFileTobeProcessed
+	 * @return
+	 */
 	private static List<BoxChild> getBoxChilds(String txtFileTobeProcessed) {
 		List<BoxChild> jobs = JobExtractor.getJobs(txtFileTobeProcessed);
 		for (BoxChild boxChild : jobs) {
 			List<String> files = boxChild.getFilesTobeScanned();
 			List<KshChild> childs = new ArrayList<>();
 			for (String fileTobeProcessed : files) {
-				//To remove duplicate and recurive parsing
+				// To remove duplicate and recurive parsing
 				HashSet<String> fileNames = new HashSet<>();
 				fileNames.add(fileTobeProcessed);
-				scanFile(fileTobeProcessed, childs,fileNames,boxChild.getCmdParams());
+				scanFile(fileTobeProcessed, childs, fileNames, boxChild.getCmdParams());
 			}
 			boxChild.setKshChilds(childs);
 
@@ -88,34 +94,25 @@ public class FileParser {
 	}
 
 	/**
+	 * Recursively parses the files extracts tge sqls and params.
 	 * @param fileTobeProcessed
 	 * @param childs
-	 * @param fileNames 
-	 * @param cmdParams 
+	 * @param fileNames
+	 * @param cmdParams
 	 */
-	private static void scanFile(String fileTobeProcessed, List<KshChild> childs, HashSet<String> fileNames, Map<String, String> cmdParams) {
+	private static void scanFile(String fileTobeProcessed, List<KshChild> childs, HashSet<String> fileNames,
+			Map<String, String> cmdParams) {
 
-		List<String> childScripts = GetScriptsInTheFile.getScripts(fileTobeProcessed,fileNames);
+		List<String> childScripts = GetScriptsInTheFile.getScripts(fileTobeProcessed, fileNames);
 		if (!childScripts.isEmpty()) {
 			for (String filename : childScripts) {
-				scanFile(filename, childs,fileNames, cmdParams);
+				scanFile(filename, childs, fileNames, cmdParams);
 			}
 		}
- 
-		KshChild boxChild = SqlExtractor.exctractSqlCommands(fileTobeProcessed,cmdParams);
-		childs.add(boxChild);
-		
-	}
 
-	private static void copyFiles(String fileTobeProcessed) {
-		try {
-			Files.copy(new File(fileTobeProcessed).toPath(),
-					new File(SH_DIRECTORY + File.separatorChar + fileTobeProcessed).toPath(),
-					StandardCopyOption.COPY_ATTRIBUTES);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		KshChild boxChild = SqlExtractor.exctractSqlCommands(fileTobeProcessed, cmdParams);
+		childs.add(boxChild);
+
 	}
 
 }

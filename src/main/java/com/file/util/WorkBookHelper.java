@@ -3,6 +3,7 @@ package com.file.util;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,6 +32,8 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.file.util.vo.Box;
 import com.file.util.vo.BoxChild;
@@ -38,7 +41,17 @@ import com.file.util.vo.KshChild;
 import com.file.util.vo.SqlComand;
 
 public class WorkBookHelper {
+	private static Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getSimpleName());
 
+	/**
+	 * Parses the input xlsx file and retrieves vap name and associated box's.
+	 * Based on columns first column being the vap and second being its boxes.
+	 * 
+	 * @param filePath
+	 * @return
+	 * @throws EncryptedDocumentException
+	 * @throws IOException
+	 */
 	public static Map<String, List<String>> getVapNameAndBoxList(String filePath)
 			throws EncryptedDocumentException, IOException {
 		// Creating a Workbook from an Excel file (.xls or .xlsx)
@@ -197,13 +210,14 @@ public class WorkBookHelper {
 					if (sqlIterator.hasNext()) {
 						sqlComand = sqlIterator.next();
 						row.createCell(6).setCellValue(sqlComand.getCommandName());
-						row.createCell(7).setCellValue(sqlComand.getCommandType());
-						Integer cmDCount = cmdAndCount.get(sqlComand.getCommandType());
+						String commandType = sqlComand.getCommandType().toUpperCase();
+						row.createCell(7).setCellValue(commandType);
+						Integer cmDCount = cmdAndCount.get(commandType);
 						if (cmDCount == null) {
-							cmdAndCount.put(sqlComand.getCommandType(), 1);
+							cmdAndCount.put(commandType, 1);
 						} else {
 							cmDCount++;
-							cmdAndCount.put(sqlComand.getCommandType(), cmDCount);
+							cmdAndCount.put(commandType, cmDCount);
 						}
 					}
 					if (paramiterator.hasNext()) {
@@ -285,10 +299,19 @@ public class WorkBookHelper {
 			XSSFRow row = resultSheet.createRow(firstRow);
 			row.createCell(6).setCellValue(entry.getKey());
 			row.createCell(7).setCellValue(entry.getValue());
-			System.out.println(entry.getKey() + "-------------------------->" + entry.getValue());
+			LOGGER.info( "{} --------------------------> {}" ,entry.getKey(), entry.getValue());
 		}
 	}
 
+	/**
+	 * Method to merge the rows of the excel.
+	 * 
+	 * @param sheet1
+	 * @param firstRow
+	 * @param lastRow
+	 * @param firstCol
+	 * @param lastCol
+	 */
 	private static void mergeCellsAndAllignCenter(XSSFSheet sheet1, int firstRow, int lastRow, int firstCol,
 			int lastCol) {
 

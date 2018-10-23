@@ -33,6 +33,12 @@ public class JobExtractor {
 
 	}
 
+	/**
+	 * Extracts the jobs being called in the box.
+	 * 
+	 * @param txtFileTobeProcessed
+	 * @return
+	 */
 	public static List<BoxChild> getJobs(String txtFileTobeProcessed) {
 		String filePath = "." + File.separatorChar + txtFileTobeProcessed + ".txt";
 		File file = new File(filePath);
@@ -85,6 +91,14 @@ public class JobExtractor {
 		return boxChilds;
 	}
 
+	/**
+	 * Parses the command used to extract the parameters being passed . Only the
+	 * paramkeys are considered. To add more parameters add the corresponding
+	 * key value pair.
+	 * 
+	 * @param command
+	 * @param cmdParams
+	 */
 	private static void setCmdParams(String command, Map<String, String> cmdParams) {
 		Set<Entry<Character, String>> entrySet = paramKeys.entrySet();
 
@@ -99,8 +113,6 @@ public class JobExtractor {
 		}
 
 	}
-
-	
 
 	private static String getVAlidName(String matchedString, Pattern parampattern2) {
 		Matcher matcher2 = PATTERN.INVALIDFLE.matcher(matchedString);

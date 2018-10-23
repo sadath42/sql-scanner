@@ -1,13 +1,14 @@
 package com.file.util.vo;
 
 import java.util.List;
-import java.util.Map;
 
+/**
+ * Box for the vap.
+ *
+ */
 public class Box {
 
 	private String name;
-
-	//private Map<String, List<BoxChild>> scriptAndSqlList;
 
 	private List<BoxChild> boxChilds;
 
@@ -26,13 +27,5 @@ public class Box {
 	public void setName(String name) {
 		this.name = name;
 	}
-
-/*	public Map<String, List<BoxChild>> getScriptAndSqlList() {
-		return scriptAndSqlList;
-	}
-
-	public void setScriptAndSqlList(Map<String, List<BoxChild>> scriptAndSqlList) {
-		this.scriptAndSqlList = scriptAndSqlList;
-	}*/
 
 }

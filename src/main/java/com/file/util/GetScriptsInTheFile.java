@@ -7,15 +7,10 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +21,8 @@ public class GetScriptsInTheFile {
 	private static Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getSimpleName());
 
 	/**
-	 * Method returns the list of shell scripts referenced.
+	 * Method returns the list of shell scripts referenced. Based on the file
+	 * types which specified in pattern PATTERN.NESTED_FILE_SEARCH
 	 * 
 	 * @param fileTobeProcessed
 	 * @param fileNames
@@ -110,9 +106,6 @@ public class GetScriptsInTheFile {
 		}
 
 		return cfFiles;
-	}
-
-	public static void main(String[] args) {
 	}
 
 }
