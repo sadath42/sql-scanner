@@ -10,7 +10,7 @@ public interface PATTERN {
 	String PARAM = "([^\\s]+(\\.(?i)(param|parm|awk|trg|cfg|sql|pl))\\b)";
 	String NESTED_FILE_SEARCH = "([^\\s]+(\\.(?i)(ksh))\\b)";
 	String INVALIDFILENAME = "([^A-Za-z0-9-_\\$\\{\\}\\.])";
-	String SQL_COMMAND = "^(\\s*(?i)(SELECT|UPDATE|INSERT|CREATE|TURNCATE|GRANT|DROP))";
+	String SQL_COMMAND = "^(\\s*(?i)(SELECT|UPDATE|INSERT|CREATE|TRUNCATE|DELETE|COLLECT|DROP))";
 	String SQL = SQL_COMMAND + "\\s+[\\s\\S]+?\\;\\s*?$";
 	
 
