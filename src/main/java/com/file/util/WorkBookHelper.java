@@ -139,8 +139,9 @@ public class WorkBookHelper {
 		row.createCell(4).setCellValue("COMMAND");
 		row.createCell(5).setCellValue("SCRIPT");
 		row.createCell(6).setCellValue("SQL COMAND");
-		row.createCell(7).setCellValue("TYPE");
-		row.createCell(8).setCellValue("PARAM");
+		row.createCell(7).setCellValue("SQL TYPE"); //added header to support SQL Type
+		row.createCell(8).setCellValue("TYPE");
+		row.createCell(9).setCellValue("PARAM");
 	}
 
 	/**
@@ -150,12 +151,12 @@ public class WorkBookHelper {
 	 * @param list
 	 * @param sheet1
 	 * @param cmdAndCount
-	 * @param vapName 
 	 */
 	public static void writeScriptAndSqlDataToExcel(XSSFRow row, String txtFileTobeProcessed, List<BoxChild> list,
 			XSSFSheet sheet1, Map<String, Integer> cmdAndCount, String vapName) {
 		int rownNum = sheet1.getPhysicalNumberOfRows();
 
+		row.createCell(1).setCellValue(txtFileTobeProcessed);
 		int i = 0;
 
 		for (BoxChild boxChild : list) {
@@ -179,7 +180,7 @@ public class WorkBookHelper {
 					}
 					printConstantColumns(row, txtFileTobeProcessed, boxChild, vapName);
 
-					row.createCell(8).setCellValue(param);
+					row.createCell(9).setCellValue(param); //updated index to support sql type addition
 					firstChildForBox = false;
 
 				}
@@ -202,25 +203,33 @@ public class WorkBookHelper {
 						row = sheet1.createRow(rownNum);
 						rownNum++;
 					}
-					if (j == 0) {
+//					if (j == 0) {
 						row.createCell(5).setCellValue(kshChild.getName());
-					}
+//					}
 
 					if (sqlIterator.hasNext()) {
 						sqlComand = sqlIterator.next();
 						row.createCell(6).setCellValue(sqlComand.getCommandName());
+						
+						String sqlType = sqlComand.getCommandSqlType(); //add sql type to the workbook
+						if(sqlType!=null){
+							row.createCell(7).setCellValue(sqlType);
+						}
+						
 						String commandType = sqlComand.getCommandType().toUpperCase();
-						row.createCell(7).setCellValue(commandType);
-						Integer cmDCount = cmdAndCount.get(commandType);
+						row.createCell(8).setCellValue(commandType); //updated index to support addition of sql type
+						
+						String countType = sqlType + "_" + commandType;
+						Integer cmDCount = cmdAndCount.get(countType);
 						if (cmDCount == null) {
-							cmdAndCount.put(commandType, 1);
+							cmdAndCount.put(countType, 1);
 						} else {
 							cmDCount++;
-							cmdAndCount.put(commandType, cmDCount);
+							cmdAndCount.put(countType, cmDCount);
 						}
 					}
 					if (paramiterator.hasNext()) {
-						row.createCell(8).setCellValue(paramiterator.next());
+						row.createCell(9).setCellValue(paramiterator.next()); //updated index to support addition of sql type
 					}
 					printConstantColumns(row, txtFileTobeProcessed, boxChild, vapName);
 					firstChildForBox = false;
@@ -229,15 +238,14 @@ public class WorkBookHelper {
 
 			}
 			i++;
-			int lastRow = sheet1.getPhysicalNumberOfRows() - 1;
-			/*
-			 * if (firstRow != lastRow) { mergeCellsAndAllignCenter(sheet1,
-			 * firstRow, lastRow, 2, 2); mergeCellsAndAllignCenter(sheet1,
-			 * firstRow, lastRow, 3, 3); mergeCellsAndAllignCenter(sheet1,
-			 * firstRow, lastRow, 4, 4);
-			 * 
-			 * }
-			 */
+//			int lastRow = sheet1.getPhysicalNumberOfRows() - 1;
+//			if (firstRow != lastRow) {
+//				mergeCellsAndAllignCenter(sheet1, firstRow, lastRow, 2, 2);
+//				mergeCellsAndAllignCenter(sheet1, firstRow, lastRow, 3, 3);
+//				mergeCellsAndAllignCenter(sheet1, firstRow, lastRow, 4, 4);
+//
+//			}
+
 		}
 
 	}
@@ -263,7 +271,7 @@ public class WorkBookHelper {
 		for (Entry<String, List<Box>> entry : resultVapAndBoxList.entrySet()) {
 			int vapCount = 0;
 			Map<String, Integer> cmdAndCount = new HashMap<>();
-			int firstRowForVap = resultSheet.getPhysicalNumberOfRows();
+//			int firstRowForVap = resultSheet.getPhysicalNumberOfRows();
 
 			for (Box box : entry.getValue()) {
 				int firstRow = resultSheet.getPhysicalNumberOfRows();
@@ -274,20 +282,14 @@ public class WorkBookHelper {
 				}
 				writeScriptAndSqlDataToExcel(row, box.getName(), box.getBoxChilds(), resultSheet, cmdAndCount,entry.getKey());
 				vapCount++;
-				int lastRow = resultSheet.getPhysicalNumberOfRows() - 1;
-				/*
-				 * if (firstRow != lastRow)
-				 * mergeCellsAndAllignCenter(resultSheet, firstRow, lastRow, 1,
-				 * 1);
-				 */
+//				int lastRow = resultSheet.getPhysicalNumberOfRows() - 1;
+//				if (firstRow != lastRow)
+//					mergeCellsAndAllignCenter(resultSheet, firstRow, lastRow, 1, 1);
 			}
 			writeSqlCounts(cmdAndCount, resultSheet);
-			int lastRowVap = resultSheet.getPhysicalNumberOfRows() - 1;
-			/*
-			 * if (firstRowForVap != lastRowVap)
-			 * mergeCellsAndAllignCenter(resultSheet, firstRowForVap,
-			 * lastRowVap, 0, 0);
-			 */
+//			int lastRowVap = resultSheet.getPhysicalNumberOfRows() - 1;
+//			if (firstRowForVap != lastRowVap)
+//				mergeCellsAndAllignCenter(resultSheet, firstRowForVap, lastRowVap, 0, 0);
 
 		}
 
@@ -311,9 +313,9 @@ public class WorkBookHelper {
 		for (Entry<String, Integer> entry : entrySet) {
 			int firstRow = resultSheet.getPhysicalNumberOfRows();
 			XSSFRow row = resultSheet.createRow(firstRow);
-			row.createCell(6).setCellValue(entry.getKey());
-			row.createCell(7).setCellValue(entry.getValue());
-			LOGGER.info("{} --------------------------> {}", entry.getKey(), entry.getValue());
+			row.createCell(7).setCellValue(entry.getKey()); //updated indexes to support addition of sql type
+			row.createCell(8).setCellValue(entry.getValue());
+			LOGGER.info( "{} --------------------------> {}" ,entry.getKey(), entry.getValue());
 		}
 	}
 
@@ -326,16 +328,14 @@ public class WorkBookHelper {
 	 * @param firstCol
 	 * @param lastCol
 	 */
-	/*
-	 * private static void mergeCellsAndAllignCenter(XSSFSheet sheet1, int
-	 * firstRow, int lastRow, int firstCol, int lastCol) {
-	 * 
-	 * XSSFCell boxCell = sheet1.getRow(firstRow).getCell(firstCol);
-	 * sheet1.addMergedRegion(new CellRangeAddress(firstRow, lastRow, firstCol,
-	 * lastCol)); CellUtil.setVerticalAlignment(boxCell,
-	 * VerticalAlignment.CENTER); CellUtil.setAlignment(boxCell,
-	 * HorizontalAlignment.CENTER);
-	 * 
-	 * }
-	 */
+//	private static void mergeCellsAndAllignCenter(XSSFSheet sheet1, int firstRow, int lastRow, int firstCol,
+//			int lastCol) {
+//
+//		XSSFCell boxCell = sheet1.getRow(firstRow).getCell(firstCol);
+//		sheet1.addMergedRegion(new CellRangeAddress(firstRow, lastRow, firstCol, lastCol));
+//		CellUtil.setVerticalAlignment(boxCell, VerticalAlignment.CENTER);
+//		CellUtil.setAlignment(boxCell, HorizontalAlignment.CENTER);
+//
+//	}
+
 }
