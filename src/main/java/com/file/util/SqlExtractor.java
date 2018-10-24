@@ -21,6 +21,9 @@ import com.file.util.vo.SqlComand;
 public class SqlExtractor {
 
 	private static Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getSimpleName());
+	
+	private static final String VSQL_TYPE = "VSQL";
+	private static final String BTEQ_TYPE = "BTEQ-SQL";
 
 	/**
 	 * Method will extract the sql command.
@@ -40,18 +43,34 @@ public class SqlExtractor {
 				String filePath = "." + File.separatorChar + fileTobeProcessed;
 				File file = new File(filePath);
 				String fileString = FileUtils.readFileToString(file, "UTF-8");
-				Matcher matcher = PATTERN.SQLPATTERN.matcher(fileString);
-				int count = 0;
-				while (matcher.find()) {
-					count++;
-					String matchedSql = matcher.group();
-					SqlComand comand = new SqlComand();
-					comand.setCommandName("SQL" + count);
-					Matcher matcher2 = PATTERN.SQLCMDPATTERN.matcher(matchedSql);
-					matcher2.find();
-					String commandType = matcher2.group();
-					comand.setCommandType(commandType.trim());
-					comands.add(comand);
+				Matcher matcher = PATTERN.SQLEOCPATTERN.matcher(fileString); //match portions of file between beginning of line with <<EOC and ending with EOC
+				int vsqlCount = 0; //updated and added count variables to increment VSQL vs BTEQ counts
+				int bteqCount = 0;
+				while(matcher.find()){
+					String subScript = matcher.group(); 
+					String sqlType = getSqlTypeFromMatch(subScript); //determine VSQL vs BTEQ-SQL from the subtext (note these are hard-coded)
+					Matcher matcher2 = PATTERN.SQLPATTERN.matcher(subScript); //now match sql statements delimited by semicolon using existing code
+					while (matcher2.find()) {
+						String matchedSql = matcher2.group();
+						SqlComand comand = new SqlComand();
+						comand.setCommandSqlType(sqlType);
+						
+						//need to increment the count based on the sql type and add that to the comand object
+						if(sqlType.equals(VSQL_TYPE)){
+							vsqlCount++;
+							comand.setCommandName(sqlType + vsqlCount);
+						} else if(sqlType.equals(BTEQ_TYPE)){
+							bteqCount++;
+							comand.setCommandName(sqlType + bteqCount);
+						} else {
+							comand.setCommandName(sqlType + "_Unrecognized");
+						}
+						Matcher matcher3 = PATTERN.SQLCMDPATTERN.matcher(matchedSql);
+						matcher3.find();
+						String commandType = matcher3.group();
+						comand.setCommandType(commandType.trim());
+						comands.add(comand);
+					}
 				}
 				boxChild.setSqlComands(comands);
 				boxChild.setParams(GetParmsInTheFile.getParams(fileTobeProcessed,cmdParams));
@@ -62,6 +81,18 @@ public class SqlExtractor {
 		}
 		return boxChild;
 
+	}
+
+	private static String getSqlTypeFromMatch(String group) {
+		String sqlType = null;
+		if(group.toLowerCase().contains("vsql")){
+			sqlType = VSQL_TYPE;
+		} else if(group.toLowerCase().contains("bteq")){
+			sqlType = BTEQ_TYPE;
+		} else {
+			sqlType = "UNRECOGNIZED";
+		}
+		return sqlType;
 	}
 
 }

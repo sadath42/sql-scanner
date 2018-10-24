@@ -150,12 +150,12 @@ public class WorkBookHelper {
 	 * @param list
 	 * @param sheet1
 	 * @param cmdAndCount
+	 * @param vapName 
 	 */
 	public static void writeScriptAndSqlDataToExcel(XSSFRow row, String txtFileTobeProcessed, List<BoxChild> list,
-			XSSFSheet sheet1, Map<String, Integer> cmdAndCount) {
+			XSSFSheet sheet1, Map<String, Integer> cmdAndCount, String vapName) {
 		int rownNum = sheet1.getPhysicalNumberOfRows();
 
-		row.createCell(1).setCellValue(txtFileTobeProcessed);
 		int i = 0;
 
 		for (BoxChild boxChild : list) {
@@ -167,9 +167,7 @@ public class WorkBookHelper {
 				row = sheet1.createRow(rownNum);
 				rownNum++;
 			}
-			row.createCell(2).setCellValue(boxChild.getJob());
-			row.createCell(3).setCellValue(boxChild.getJobType());
-			row.createCell(4).setCellValue(boxChild.getCommand());
+			printConstantColumns(row, txtFileTobeProcessed, boxChild, vapName);
 			List<String> params = boxChild.getParams();
 
 			if (!params.isEmpty()) {
@@ -179,6 +177,7 @@ public class WorkBookHelper {
 						row = sheet1.createRow(rownNum);
 						rownNum++;
 					}
+					printConstantColumns(row, txtFileTobeProcessed, boxChild, vapName);
 
 					row.createCell(8).setCellValue(param);
 					firstChildForBox = false;
@@ -223,7 +222,7 @@ public class WorkBookHelper {
 					if (paramiterator.hasNext()) {
 						row.createCell(8).setCellValue(paramiterator.next());
 					}
-
+					printConstantColumns(row, txtFileTobeProcessed, boxChild, vapName);
 					firstChildForBox = false;
 					j++;
 				}
@@ -231,15 +230,24 @@ public class WorkBookHelper {
 			}
 			i++;
 			int lastRow = sheet1.getPhysicalNumberOfRows() - 1;
-			if (firstRow != lastRow) {
-				mergeCellsAndAllignCenter(sheet1, firstRow, lastRow, 2, 2);
-				mergeCellsAndAllignCenter(sheet1, firstRow, lastRow, 3, 3);
-				mergeCellsAndAllignCenter(sheet1, firstRow, lastRow, 4, 4);
-
-			}
-
+			/*
+			 * if (firstRow != lastRow) { mergeCellsAndAllignCenter(sheet1,
+			 * firstRow, lastRow, 2, 2); mergeCellsAndAllignCenter(sheet1,
+			 * firstRow, lastRow, 3, 3); mergeCellsAndAllignCenter(sheet1,
+			 * firstRow, lastRow, 4, 4);
+			 * 
+			 * }
+			 */
 		}
 
+	}
+
+	private static void printConstantColumns(XSSFRow row, String txtFileTobeProcessed, BoxChild boxChild, String vapName) {
+		row.createCell(0).setCellValue(vapName);
+		row.createCell(1).setCellValue(txtFileTobeProcessed);
+		row.createCell(2).setCellValue(boxChild.getJob());
+		row.createCell(3).setCellValue(boxChild.getJobType());
+		row.createCell(4).setCellValue(boxChild.getCommand());
 	}
 
 	/**
@@ -264,16 +272,22 @@ public class WorkBookHelper {
 				if (vapCount == 0) {
 					row.createCell(0).setCellValue(entry.getKey());
 				}
-				writeScriptAndSqlDataToExcel(row, box.getName(), box.getBoxChilds(), resultSheet, cmdAndCount);
+				writeScriptAndSqlDataToExcel(row, box.getName(), box.getBoxChilds(), resultSheet, cmdAndCount,entry.getKey());
 				vapCount++;
 				int lastRow = resultSheet.getPhysicalNumberOfRows() - 1;
-				if (firstRow != lastRow)
-					mergeCellsAndAllignCenter(resultSheet, firstRow, lastRow, 1, 1);
+				/*
+				 * if (firstRow != lastRow)
+				 * mergeCellsAndAllignCenter(resultSheet, firstRow, lastRow, 1,
+				 * 1);
+				 */
 			}
 			writeSqlCounts(cmdAndCount, resultSheet);
 			int lastRowVap = resultSheet.getPhysicalNumberOfRows() - 1;
-			if (firstRowForVap != lastRowVap)
-				mergeCellsAndAllignCenter(resultSheet, firstRowForVap, lastRowVap, 0, 0);
+			/*
+			 * if (firstRowForVap != lastRowVap)
+			 * mergeCellsAndAllignCenter(resultSheet, firstRowForVap,
+			 * lastRowVap, 0, 0);
+			 */
 
 		}
 
@@ -299,7 +313,7 @@ public class WorkBookHelper {
 			XSSFRow row = resultSheet.createRow(firstRow);
 			row.createCell(6).setCellValue(entry.getKey());
 			row.createCell(7).setCellValue(entry.getValue());
-			LOGGER.info( "{} --------------------------> {}" ,entry.getKey(), entry.getValue());
+			LOGGER.info("{} --------------------------> {}", entry.getKey(), entry.getValue());
 		}
 	}
 
@@ -312,14 +326,16 @@ public class WorkBookHelper {
 	 * @param firstCol
 	 * @param lastCol
 	 */
-	private static void mergeCellsAndAllignCenter(XSSFSheet sheet1, int firstRow, int lastRow, int firstCol,
-			int lastCol) {
-
-		XSSFCell boxCell = sheet1.getRow(firstRow).getCell(firstCol);
-		sheet1.addMergedRegion(new CellRangeAddress(firstRow, lastRow, firstCol, lastCol));
-		CellUtil.setVerticalAlignment(boxCell, VerticalAlignment.CENTER);
-		CellUtil.setAlignment(boxCell, HorizontalAlignment.CENTER);
-
-	}
-
+	/*
+	 * private static void mergeCellsAndAllignCenter(XSSFSheet sheet1, int
+	 * firstRow, int lastRow, int firstCol, int lastCol) {
+	 * 
+	 * XSSFCell boxCell = sheet1.getRow(firstRow).getCell(firstCol);
+	 * sheet1.addMergedRegion(new CellRangeAddress(firstRow, lastRow, firstCol,
+	 * lastCol)); CellUtil.setVerticalAlignment(boxCell,
+	 * VerticalAlignment.CENTER); CellUtil.setAlignment(boxCell,
+	 * HorizontalAlignment.CENTER);
+	 * 
+	 * }
+	 */
 }

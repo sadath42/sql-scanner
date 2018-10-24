@@ -2,6 +2,7 @@ package com.file.util.vo;
 
 public class SqlComand {
 	private String commandName;
+	private String commandSqlType; //
 	private String commandType;
 
 	public String getCommandName() {
@@ -20,10 +21,22 @@ public class SqlComand {
 		this.commandType = commandType;
 	}
 
+	public String getCommandSqlType() {
+		return commandSqlType;
+	}
+
+	public void setCommandSqlType(String commandSqlType) {
+		this.commandSqlType = commandSqlType;
+	}
+
+
 	@Override
 	public String toString() {
-		return "SqlComand [commandName=" + commandName + ", commandType=" + commandType + "]";
+		return "SqlComand [commandName=" + commandName + ", commandSqlType=" + commandSqlType + ", commandType="
+				+ commandType + "]";
 	}
+	
+	
 	
 	
 

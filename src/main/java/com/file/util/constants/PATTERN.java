@@ -10,6 +10,7 @@ public interface PATTERN {
 	String PARAM = "([^\\s]+(\\.(?i)(param|parm|awk|trg|cfg|sql|pl))\\b)";
 	String NESTED_FILE_SEARCH = "([^\\s]+(\\.(?i)(ksh))\\b)";
 	String INVALIDFILENAME = "([^A-Za-z0-9-_\\$\\{\\}\\.])";
+	String SQL_EOC = "(.*?)<<EOC([\\s\\S]*?)EOC";
 	String SQL_COMMAND = "^(\\s*(?i)(SELECT|UPDATE|INSERT|CREATE|TRUNCATE|DELETE|COLLECT|DROP))";
 	String SQL = SQL_COMMAND + "\\s+[\\s\\S]+?\\;\\s*?$";
 	
@@ -25,5 +26,5 @@ public interface PATTERN {
 	Pattern INVALIDFLE = Pattern.compile(PATTERN.INVALIDFILENAME);
 	Pattern SQLPATTERN = Pattern.compile(PATTERN.SQL, Pattern.MULTILINE);
 	Pattern SQLCMDPATTERN = Pattern.compile(PATTERN.SQL_COMMAND, Pattern.MULTILINE);
-
-}
+	Pattern SQLEOCPATTERN = Pattern.compile(PATTERN.SQL_EOC, Pattern.MULTILINE);
+}	
