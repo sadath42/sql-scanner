@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -26,11 +25,10 @@ public class GetScriptsInTheFile {
 	 * types which specified in pattern PATTERN.NESTED_FILE_SEARCH
 	 * 
 	 * @param fileTobeProcessed
-	 * @param fileNames
 	 * @param cfgFiles2 
 	 * @return
 	 */
-	public static List<String> getScripts(String fileTobeProcessed, HashSet<String> fileNames, Set<String> vapCfgFiles) {
+	public static List<String> getScripts(String fileTobeProcessed, Set<String> fileNames) {
 		List<String> fileList = new ArrayList<>();
 		String filePath; 
 
@@ -75,7 +73,7 @@ public class GetScriptsInTheFile {
 
 					}
 					for (String cfgFile : cfgFiles) {
-						if (vapCfgFiles.add(cfgFile)) {
+						if (fileNames.add(cfgFile)) {
 							fileList.add(cfgFile);
 						}
 					}

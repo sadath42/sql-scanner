@@ -77,20 +77,20 @@ public class FileParser {
 	 * the script.
 	 * 
 	 * @param txtFileTobeProcessed
-	 * @param cfgFiles 
+	 * @param filenames 
 	 * @return
 	 */
-	private static List<BoxChild> getBoxChilds(String txtFileTobeProcessed, Set<String> cfgFiles) {
+	private static List<BoxChild> getBoxChilds(String txtFileTobeProcessed, Set<String> filenames) {
 		List<BoxChild> jobs = JobExtractor.getJobs(txtFileTobeProcessed);
 		for (BoxChild boxChild : jobs) {
 			List<String> files = boxChild.getFilesTobeScanned();
 			List<KshChild> childs = new ArrayList<>();
 			for (String fileTobeProcessed : files) {
 				// To remove duplicate and recurive parsing
-				HashSet<String> fileNames = new HashSet<>();
-				fileNames.add(fileTobeProcessed);
-				scanFile(fileTobeProcessed, childs, fileNames, boxChild.getCmdParams(),cfgFiles);
-			} 
+				if(filenames.add(fileTobeProcessed)){
+				scanFile(fileTobeProcessed, childs,  boxChild.getCmdParams(),filenames);
+				}
+			}  
 			boxChild.setKshChilds(childs);
 
 		}
@@ -101,17 +101,15 @@ public class FileParser {
 	 * Recursively parses the files extracts tge sqls and params.
 	 * @param fileTobeProcessed
 	 * @param childs
-	 * @param fileNames
 	 * @param cmdParams
 	 * @param cfgFiles 
 	 */
-	private static void scanFile(String fileTobeProcessed, List<KshChild> childs, HashSet<String> fileNames,
-			Map<String, String> cmdParams, Set<String> cfgFiles) {
+	private static void scanFile(String fileTobeProcessed, List<KshChild> childs, Map<String, String> cmdParams, Set<String> fileNames) {
 
-		List<String> childScripts = GetScriptsInTheFile.getScripts(fileTobeProcessed, fileNames,cfgFiles);
+		List<String> childScripts = GetScriptsInTheFile.getScripts(fileTobeProcessed, fileNames);
 		if (!childScripts.isEmpty()) {
 			for (String filename : childScripts) {
-				scanFile(filename, childs, fileNames, cmdParams,cfgFiles);
+				scanFile(filename, childs,  cmdParams,fileNames);
 			}
 		} 
 
