@@ -40,8 +40,8 @@ public class SqlExtractor {
 			if ("txt".equals(FilenameUtils.getExtension(fileTobeProcessed))) {
 				boxChild.setParams(GetParmsInTheFile.getParams(fileTobeProcessed,cmdParams));
 			} else {
-				String filePath = "." + File.separatorChar + fileTobeProcessed;
-				File file = new File(filePath);
+			//	String filePath = "." + File.separatorChar + fileTobeProcessed;
+				File file = new File(fileTobeProcessed);
 				String fileString = FileUtils.readFileToString(file, "UTF-8");
 				Matcher matcher = PATTERN.SQLEOCPATTERN.matcher(fileString); //match portions of file between beginning of line with <<EOC and ending with EOC
 				int vsqlCount = 0; //updated and added count variables to increment VSQL vs BTEQ counts

@@ -31,16 +31,16 @@ public class GetParmsInTheFile {
 	public static List<String> getParams(String fileTobeProcessed, Map<String, String> cmdParams) {
 		HashSet<String> fileList = new LinkedHashSet<>();
 		String filePath;
-		/*if (FilenameUtils.getExtension(fileTobeProcessed).isEmpty()) {
-			filePath = "." + File.separatorChar + fileTobeProcessed + ".txt";
-
-		} else {
-			filePath = "." + File.separatorChar + fileTobeProcessed;
-		}*/
-		filePath = "." + File.separatorChar + fileTobeProcessed;
+		/*
+		 * if (FilenameUtils.getExtension(fileTobeProcessed).isEmpty()) {
+		 * filePath = "." + File.separatorChar + fileTobeProcessed + ".txt";
+		 * 
+		 * } else { filePath = "." + File.separatorChar + fileTobeProcessed; }
+		 */
+		// filePath = "." + File.separatorChar + fileTobeProcessed;
 
 		LOGGER.info("---------------------------->Started reading file {}", fileTobeProcessed);
-		try (FileReader reader = new FileReader(filePath)) {
+		try (FileReader reader = new FileReader(fileTobeProcessed)) {
 
 			BufferedReader bufferedReader = new BufferedReader(reader);
 

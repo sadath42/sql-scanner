@@ -3,6 +3,9 @@ package com.file.util.vo;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.compress.compressors.FileNameUtil;
+import org.apache.commons.io.FilenameUtils;
+
 public class KshChild {
 	String name;
 
@@ -11,7 +14,8 @@ public class KshChild {
 
 	public KshChild(String name) {
 		super();
-		this.name = name;
+
+		this.name = FilenameUtils.getName(name);
 	}
 
 	public String getName() {
@@ -37,6 +41,5 @@ public class KshChild {
 	public void setSqlComands(List<SqlComand> sqlComands) {
 		this.sqlComands = sqlComands;
 	}
-	
 
 }

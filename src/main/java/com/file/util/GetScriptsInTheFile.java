@@ -30,12 +30,12 @@ public class GetScriptsInTheFile {
 	 */
 	public static List<String> getScripts(String fileTobeProcessed, Set<String> fileNames) {
 		List<String> fileList = new ArrayList<>();
-		String filePath; 
+		/*String filePath; 
 
 		filePath = "." + File.separatorChar + fileTobeProcessed;
-
+*/
 		LOGGER.info("---------------------------->Started reading file {}", fileTobeProcessed);
-		try (FileReader reader = new FileReader(filePath)) {
+		try (FileReader reader = new FileReader(fileTobeProcessed)) {
 
 			BufferedReader bufferedReader = new BufferedReader(reader);
 

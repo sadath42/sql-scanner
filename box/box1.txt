@@ -1,0 +1,24 @@
+/*******************************************/
+
+Some daasfo safpok: skdpfs as;fksa :asfdas
+ command : test1.ksh
+ jasbjsabfnaslfmas;
+ 
+ Some daasfo safpok: skdpfs as;fksa :asfdas
+
+ Some daasfo safpok: skdpfs as;fksa :asfdas
+
+ Some daasfo safpok: skdpfs as;fksa :asfdas
+
+ Some daasfo safpok: skdpfs as;fksa :asfdas
+Some daasfo safpok: skdpfs as;fksa :asfdas
+
+ command : test2.ksh  Some daasfo safpok: skdpfs as;fksa :asfdas test3.ksh
+Some daasfo safpok: skdpfs as;fksa :asfdas
+sample.ksh
+sample1.ksh
+a.param  a_b_c.param
+sfhas ${a_b}/${ch_job}_a.dynamic.sql.param
+sfhas ${a_b}/SC_A.param
+
+

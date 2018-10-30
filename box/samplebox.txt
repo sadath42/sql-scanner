@@ -1,0 +1,257 @@
+
+insert_job: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT   job_type: BOX 
+owner: pcrhman
+permission: gx,ge
+date_conditions: 0
+condition: success(CRH_PH1_U_VP_Y_CR_X_DY_GLBSUPS2ST)
+description: "SENDING ICM FEED TO FRE - ON-DEMAND (ANY DAY OF WEEK)"
+alarm_if_fail: 0
+timezone: US/Eastern
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_AUD_VRT_GLBSUPEXTGEN ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_AUD_VRT_GLBSUPEXTGEN   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT
+ command: FWLite_get_runid_busdt.ksh -l CRH -b CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT sample.ksh -j sadathtest
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${ERROR}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_ETL_VRT_GLBSUPSTG2DST ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_ETL_VRT_GLBSUPSTG2DST   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT
+ command: FWLite_script_runner_wrapper.ksh -b CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT -l CRH -j CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_ETL_VRT_GLBSUPSTG2DST -f C -h N -t LD_GLBSUPSTG2DST.trg -- ksh EDDS_TGT_TBL_LOAD.ksh -i 45 -j GLOBAL_SUPPRESS -t Y
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_AUD_VRT_GLBSUPEXTGEN)
+ description: "LOADING ICM FEED TO TGT TABLE"
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${ERROR}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_ETL_VRT_GLBSUPXMLFRE ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_ETL_VRT_GLBSUPXMLFRE   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT
+ command: FWLite_script_runner_wrapper.ksh -b CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT -l CRH -j CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_ETL_VRT_GLBSUPXMLFRE -f C -h N -t LD_GLBSUPXMLFRE.trg -- ksh EDDS_XML_FRE.ksh -i 45 -j GLOBAL_SUPPRESS -m 1
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_ETL_VRT_GLBSUPSTG2DST)
+ description: "LOADING THE FRE LOAD READY TABLE"
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${ERROR}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_EXT_VRT_GLBSUPXMLEXT0 ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_EXT_VRT_GLBSUPXMLEXT0   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT
+ command: FWLite_script_runner_wrapper.ksh -b CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT -l CRH -j CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_EXT_VRT_GLBSUPXMLEXT0 -f C -h N -t LD_GLBSUPXMLEXT0.trg -- ksh EDDS_XML_FILE_EXTRACT.ksh -f GLOBAL_SUPPRESS -t GLOBAL_SUPPRESS_XML_EXT -l 120 -r 0
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_ETL_VRT_GLBSUPXMLFRE)
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${ERROR}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_XFR_VRT_GLBSUPNDMFRE0 ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_XFR_VRT_GLBSUPNDMFRE0   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT
+ command: FWLite_script_runner_wrapper.ksh -b CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT -l CRH -j CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_XFR_VRT_GLBSUPNDMFRE0 -f C -h N -t LD_GLBSUPNDMFRE0.trg -- ksh TRN_CRH2DWNSTRM.ksh -r NDM_GLOBAL_SUPPRESS_0.param -t Z
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_EXT_VRT_GLBSUPXMLEXT0)
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${ERROR}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_EXT_VRT_GLBSUPXMLEXT1 ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_EXT_VRT_GLBSUPXMLEXT1   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT
+ command: FWLite_script_runner_wrapper.ksh -b CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT -l CRH -j CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_EXT_VRT_GLBSUPXMLEXT1 -f C -h N -t LD_GLBSUPXMLEXT1.trg -- ksh EDDS_XML_FILE_EXTRACT.ksh -f GLOBAL_SUPPRESS -t GLOBAL_SUPPRESS_XML_EXT -l 320 -r 1
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_ETL_VRT_GLBSUPXMLFRE)
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${ERROR}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_XFR_VRT_GLBSUPNDMFRE1 ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_XFR_VRT_GLBSUPNDMFRE1   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT
+ command: FWLite_script_runner_wrapper.ksh -b CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT -l CRH -j CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_XFR_VRT_GLBSUPNDMFRE1 -f C -h N -t LD_GLBSUPNDMFRE1.trg -- ksh TRN_CRH2DWNSTRM.ksh -r NDM_GLOBAL_SUPPRESS_1.param -t Z
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_EXT_VRT_GLBSUPXMLEXT1)
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${ERROR}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_EXT_VRT_GLBSUPXMLEXT2 ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_EXT_VRT_GLBSUPXMLEXT2   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT
+ command: FWLite_script_runner_wrapper.ksh -b CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT -l CRH -j CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_EXT_VRT_GLBSUPXMLEXT2 -f C -h N -t LD_GLBSUPXMLEXT2.trg -- ksh EDDS_XML_FILE_EXTRACT.ksh -f GLOBAL_SUPPRESS -t GLOBAL_SUPPRESS_XML_EXT -l 120 -r 2
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_ETL_VRT_GLBSUPXMLFRE)
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${ERROR}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_XFR_VRT_GLBSUPNDMFRE2 ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_XFR_VRT_GLBSUPNDMFRE2   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT
+ command: FWLite_script_runner_wrapper.ksh -b CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT -l CRH -j CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_XFR_VRT_GLBSUPNDMFRE2 -f C -h N -t LD_GLBSUPNDMFRE2.trg -- ksh TRN_CRH2DWNSTRM.ksh -r NDM_GLOBAL_SUPPRESS_2.param -t Z
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_EXT_VRT_GLBSUPXMLEXT2)
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${ERROR}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_C_DY_XGLBSUPEXT_XFR_NDM_XXXXMFTRGR ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_C_DY_XGLBSUPEXT_XFR_NDM_XXXXMFTRGR   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT
+ command: FWLite_script_runner_wrapper.ksh -b CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT -l CRH -j CRH_PH1_U_VP_Y_CR_C_DY_XGLBSUPEXT_XFR_NDM_XXXXMFTRGR -f C -h N -t TRN_CRH2DWNSTRM_GLBSUP_4.trig -- TRN_CRH2DWNSTRM.ksh -r GLOBAL_SUPPRESS_NDM_TRGR.param -t T
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_XFR_VRT_GLBSUPNDMFRE2)
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${ERROR}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+ timezone: US/Eastern
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_ETL_VRT_GLBSUPEXTAUDIT ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_ETL_VRT_GLBSUPEXTAUDIT   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT
+ command: FWLite_script_runner_wrapper.ksh -b CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT -l CRH -j CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_ETL_VRT_GLBSUPEXTAUDIT -f C -h N -t LD_GLBSUPEXTAUD.trg -- ksh EDDS_TARGET_EXTRACT_AUDIT.ksh -i 45 -j GLOBAL_SUPPRESS -f FRE.CDM.SUPPR.DLY1.FULLFL -t ADD/UPDATE -r 2 -u N -v GLOBAL_SUPPRESS_XML_EXT
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_ETL_VRT_GLBSUPXMLFRE)
+ description: "LOADING THE EXTRACT AUDIT TABLE"
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${ERROR}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_FLR_VRT_GLBSUPFLRM ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_FLR_VRT_GLBSUPFLRM   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT
+ command: FWLite_script_runner_wrapper.ksh -b CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT -l CRH -j CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_FLR_VRT_GLBSUPFLRM -f C -h N -t LD_GLBSUPFLR.trg -- rm -f WKLY_ICM_GLOBAL_SUPPRESS_DATA.done
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_ETL_VRT_GLBSUPEXTAUDIT)
+ description: "LOADING THE EXTRACT AUDIT TABLE"
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${ERROR}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_RST_VRT_GLBSUPEXTGEN ----------------- */ 
+
+ insert_job: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_RST_VRT_GLBSUPEXTGEN   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT
+ command: FWLite_fwstat_wrapper.ksh -b CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT -l CRH
+ machine: CRH_RDS_PROD_VM
+ owner: pcrhman
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_FLR_VRT_GLBSUPFLRM)
+ std_out_file: "${LOG}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.log"
+ std_err_file: "${ERROR}/${AUTO_JOB_NAME}.${AUTO_JOB_PID}.err"
+ alarm_if_fail: 1
+ timezone: US/Eastern
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_XFR_KSH_PRDACRSSCORE ----------------- */ 
+
+               insert_job: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_XFR_KSH_PRDACRSSCORE   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT
+ command: touch /iis_prodva_data3/crh/inbox/GEN_CRH_ECIDA_GLOBAL_SUPPRESS_FRE_EXT.trg
+ machine: lrcha76856.bankofamerica.com
+ owner: chldpd
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_ETL_VRT_GLBSUPXMLFRE)
+ std_out_file: "/iis_prodva_data3/crh/common/log/${AUTO_JOB_NAME}.$$.log"
+ std_err_file: "/iis_prodva_data3/crh/common/error/${AUTO_JOB_NAME}.$$.err"
+ alarm_if_fail: 1
+ timezone: US/Eastern
+
+
+
+/* ----------------- CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_XFR_KSH_PRDBCRSSCORE ----------------- */ 
+
+                    insert_job: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_XFR_KSH_PRDBCRSSCORE   job_type: CMD 
+ box_name: CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT
+ command: touch /iis_prodtx_data3/crh/inbox/GEN_CRH_ECIDA_GLOBAL_SUPPRESS_FRE_EXT.trg
+ machine: lrdna76884.bankofamerica.com
+ owner: chldpd
+ permission: gx,ge
+ date_conditions: 0
+ condition: success(CRH_PH1_U_VP_Y_CR_X_DY_XGLBSUPEXT_ETL_VRT_GLBSUPXMLFRE)
+ std_out_file: "/iis_prodtx_data3/crh/common/log/${AUTO_JOB_NAME}.$$.log"
+ std_err_file: "/iis_prodtx_data3/crh/common/error/${AUTO_JOB_NAME}.$$.err"
+ alarm_if_fail: 1
+ timezone: US/Eastern
+

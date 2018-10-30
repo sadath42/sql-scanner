@@ -40,8 +40,8 @@ public class JobExtractor {
 	 * @return
 	 */
 	public static List<BoxChild> getJobs(String txtFileTobeProcessed) {
-		String filePath = "." + File.separatorChar + txtFileTobeProcessed + ".txt";
-		File file = new File(filePath);
+		//String filePath = "." + File.separatorChar + txtFileTobeProcessed + ".txt";
+		File file = new File(txtFileTobeProcessed);
 		String fileString;
 		List<BoxChild> boxChilds = new ArrayList<>();
 
