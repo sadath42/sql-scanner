@@ -39,6 +39,7 @@ public class FileParser {
 			throw new RuntimeException("Required input xslx file");
 		}
 		SAMPLE_XLSX_FILE_PATH = SAMPLE_XLSX_FILE_PATH + args[0];
+		String jilFile = args[1];
 
 		File shDirectory = new File(SH_DIRECTORY);
 		if (!shDirectory.exists()) {
@@ -46,9 +47,13 @@ public class FileParser {
 		}
 		Map<String, List<String>> vapAndBoxListMap = WorkBookHelper.getVapNameAndBoxList(SAMPLE_XLSX_FILE_PATH);
 
-		Map<String, List<Box>> resultVapAndBoxList = processVaps(vapAndBoxListMap);
+		List<String> activejobs = WorkBookHelper.getActiveJobs(SAMPLE_XLSX_FILE_PATH);
+		Set<String> cfgFiles = new LinkedHashSet<>();
+		List<BoxChild> boxChilds = getBoxChilds(jilFile, cfgFiles,activejobs);
 
-		WorkBookHelper.writeResultToExcel(resultVapAndBoxList);
+	//	Map<String, List<Box>> resultVapAndBoxList = processVaps(vapAndBoxListMap);
+
+		WorkBookHelper.writeResultToExcel(boxChilds);
 
 	}
 
@@ -70,7 +75,7 @@ public class FileParser {
 				Box box = new Box();
 				box.setName(txtFileTobeProcessed);
 
-				List<BoxChild> boxChilds = getBoxChilds(txtFileTobeProcessed, cfgFiles);
+				List<BoxChild> boxChilds = getBoxChilds(txtFileTobeProcessed, cfgFiles, null);
 
 				box.setBoxChilds(boxChilds);
 				boxs.add(box);
@@ -86,11 +91,12 @@ public class FileParser {
 	 * 
 	 * @param txtFileTobeProcessed
 	 * @param filenames
+	 * @param activejobs 
 	 * @return
 	 */
-	private static List<BoxChild> getBoxChilds(String txtFileTobeProcessed, Set<String> filenames) {
-		txtFileTobeProcessed = getFilePath(txtFileTobeProcessed+".txt");
-		List<BoxChild> jobs = JobExtractor.getJobs(txtFileTobeProcessed);
+	private static List<BoxChild> getBoxChilds(String txtFileTobeProcessed, Set<String> filenames, List<String> activejobs) {
+		txtFileTobeProcessed = getFilePath(txtFileTobeProcessed + ".txt");
+		List<BoxChild> jobs = JobExtractor.getJobs(txtFileTobeProcessed,activejobs);
 		for (BoxChild boxChild : jobs) {
 			List<String> files = boxChild.getFilesTobeScanned();
 			List<KshChild> childs = new ArrayList<>();
@@ -108,12 +114,12 @@ public class FileParser {
 
 	private static String getFilePath(String txtFileTobeProcessed) {
 		String filePath = txtFileTobeProcessed;
-		LOGGER.info("Finding path of file {}",txtFileTobeProcessed);
+		LOGGER.info("Finding path of file {}", txtFileTobeProcessed);
 		try (Stream<Path> stream = Files.find(Paths.get("."), 2,
 				(path, attr) -> path.getFileName().toString().equals(txtFileTobeProcessed))) {
 			Optional<Path> findFirst = stream.findFirst();
-			if(findFirst.isPresent()){
-			filePath = findFirst.get().toString();
+			if (findFirst.isPresent()) {
+				filePath = findFirst.get().toString();
 			}
 		} catch (IOException e) {
 			LOGGER.error("Error while finding files {}", e);

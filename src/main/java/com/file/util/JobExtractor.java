@@ -37,10 +37,13 @@ public class JobExtractor {
 	 * Extracts the jobs being called in the box.
 	 * 
 	 * @param txtFileTobeProcessed
+	 * @param activejobs
 	 * @return
 	 */
-	public static List<BoxChild> getJobs(String txtFileTobeProcessed) {
-		//String filePath = "." + File.separatorChar + txtFileTobeProcessed + ".txt";
+	public static List<BoxChild> getJobs(String txtFileTobeProcessed, List<String> activejobs) {
+		// String filePath = "." + File.separatorChar + txtFileTobeProcessed +
+		// ".txt";
+
 		File file = new File(txtFileTobeProcessed);
 		String fileString;
 		List<BoxChild> boxChilds = new ArrayList<>();
@@ -56,6 +59,11 @@ public class JobExtractor {
 				// System.out.println(Job);
 				Matcher matcher = PATTERN.JOBPATTERN.matcher(Job);
 				matcher.find();
+				String jobName = matcher.group();
+				// Check job is present in active jobs
+				if (jobName == null || !activejobs.contains(jobName.toUpperCase())) {
+					continue;
+				}
 				boxChild.setJob(matcher.group());
 				System.out.println(matcher.group());
 				matcher = PATTERN.JOBTYPE.matcher(Job);

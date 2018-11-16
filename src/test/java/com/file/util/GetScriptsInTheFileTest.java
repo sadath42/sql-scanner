@@ -12,7 +12,7 @@ public class GetScriptsInTheFileTest {
 	@Test
 	public void testGetScripts(){
 		
-		List<String> scripts = GetScriptsInTheFile.getScripts("src/test/resources/box1.txt", new HashSet<>(), null);
+		List<String> scripts = GetScriptsInTheFile.getScripts("src/test/resources/box1.txt", new HashSet<>());
 		Assert.assertEquals(5, scripts.size());
 	}
 }
