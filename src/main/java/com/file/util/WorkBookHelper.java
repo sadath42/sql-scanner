@@ -271,7 +271,7 @@ public class WorkBookHelper {
 		}
 
 	}
-	
+
 	/**
 	 * 
 	 * @param row
@@ -280,11 +280,11 @@ public class WorkBookHelper {
 	 * @param sheet1
 	 * @param cmdAndCount
 	 */
-	public static void writeScriptAndSqlDataToExcel(XSSFRow row,  List<BoxChild> list,
-			XSSFSheet sheet1, Map<String, Integer> cmdAndCount) {
+	public static void writeScriptAndSqlDataToExcel(XSSFRow row, List<BoxChild> list, XSSFSheet sheet1,
+			Map<String, Integer> cmdAndCount) {
 		int rownNum = sheet1.getPhysicalNumberOfRows();
 
-		//row.createCell(1).setCellValue(txtFileTobeProcessed);
+		// row.createCell(1).setCellValue(txtFileTobeProcessed);
 		int i = 0;
 
 		for (BoxChild boxChild : list) {
@@ -307,10 +307,8 @@ public class WorkBookHelper {
 						rownNum++;
 					}
 					printConstantColumns(row, null, boxChild, null);
-
-					row.createCell(7).setCellValue(param); // updated index to
-															// support sql type
-															// addition
+					// updated index to support sql type addition
+					row.createCell(7).setCellValue(param);
 					firstChildForBox = false;
 
 				}
@@ -321,6 +319,11 @@ public class WorkBookHelper {
 				Iterator<String> paramiterator = kshChild.getParams().iterator();
 				Iterator<SqlComand> sqlIterator = kshChild.getSqlComands().iterator();
 				int j = 0;
+				if (kshChild.getParams().isEmpty() && kshChild.getSqlComands().isEmpty()) {
+					printConstantColumns(row, null, boxChild, null);
+					row.createCell(3).setCellValue(kshChild.getName());
+					firstChildForBox = false;
+				}
 				while (paramiterator.hasNext() || sqlIterator.hasNext()) {
 
 					SqlComand sqlComand;
@@ -401,8 +404,8 @@ public class WorkBookHelper {
 
 	private static void printConstantColumns(XSSFRow row, String txtFileTobeProcessed, BoxChild boxChild,
 			String vapName) {
-	//	row.createCell(0).setCellValue(vapName);
-	//	row.createCell(1).setCellValue(txtFileTobeProcessed);
+		// row.createCell(0).setCellValue(vapName);
+		// row.createCell(1).setCellValue(txtFileTobeProcessed);
 		row.createCell(0).setCellValue(boxChild.getJob());
 		row.createCell(1).setCellValue(boxChild.getJobType());
 		row.createCell(2).setCellValue(boxChild.getCommand());
