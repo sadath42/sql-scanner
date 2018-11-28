@@ -67,7 +67,7 @@ public class GetScriptsInTheFile {
 						 * avoid matches like .ksh
 						 */
 						Matcher matcherFinal = PATTERN.FILETOBEPROCESSED.matcher(finalMatch);
-						if (matcherFinal.find() && fileNames.add(finalMatch)) {
+						if ( fileNames.add(finalMatch)) {
 							fileList.add(finalMatch);
 						}
 

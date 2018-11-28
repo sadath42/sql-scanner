@@ -8,7 +8,7 @@ public interface PATTERN {
 	String JOB_TYPE = "job_type:(\\s*\\w+)";
 	String CMD = "command:(\\s*.*?$)";
 	String PARAM = "([^\\s]+(\\.(?i)(param|parm|awk|trg|cfg|sql|pl))\\b)";
-	String NESTED_FILE_SEARCH = "([^\\s]+(\\.(?i)(ksh))\\b)";
+	String NESTED_FILE_SEARCH = "([^\\s]+(\\.(?i)(ksh))(?=$|\\s))";
 	String INVALIDFILENAME = "([^A-Za-z0-9-_\\$\\{\\}\\.])";
 	String SQL_EOC = "(.*?)<<EOC([\\s\\S]*?)EOC";
 	String SQL_COMMAND = "^(\\s*(?i)(SELECT|UPDATE|INSERT|CREATE|TRUNCATE|DELETE|COLLECT|DROP))";

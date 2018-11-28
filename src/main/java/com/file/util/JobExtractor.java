@@ -137,7 +137,7 @@ public class JobExtractor {
 		 */
 		Matcher matcherFinal = parampattern2.matcher(finalMatch);
 		if (!matcherFinal.find()) {
-			finalMatch = null;
+		//	finalMatch = null;
 		}
 		return finalMatch;
 	}

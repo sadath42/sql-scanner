@@ -320,6 +320,10 @@ public class WorkBookHelper {
 				Iterator<SqlComand> sqlIterator = kshChild.getSqlComands().iterator();
 				int j = 0;
 				if (kshChild.getParams().isEmpty() && kshChild.getSqlComands().isEmpty()) {
+					if (!firstChildForBox) {
+						row = sheet1.createRow(rownNum);
+						rownNum++;
+					}
 					printConstantColumns(row, null, boxChild, null);
 					row.createCell(3).setCellValue(kshChild.getName());
 					firstChildForBox = false;
